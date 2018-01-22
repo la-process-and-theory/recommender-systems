@@ -32,7 +32,7 @@ In this assignment you will be building a collaborative filter. Collaborative fi
 
 ### Knowledge Check  
 
-**Once you have completed all tasks in the unit, please complete the [knowledge check]().**
+**Once you have completed all tasks in the unit, please complete the [knowledge check](https://tccolumbia.qualtrics.com/jfe/form/SV_1GOk42X1JrBTIFf).**
 
 ### Additional Materials
 
