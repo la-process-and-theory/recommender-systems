@@ -10,13 +10,19 @@ In HUDK4051 there are six units, we will use your ratings of these units in term
 
 Start by uploading both the interest and difficulty csv files:
 ```{r}
-I1 <- 
-D1 <- 
+I1 <- read.csv("interest.csv", header=TRUE)
+D1 <- read.csv("difficulty.csv", header =TRUE)
 ```
 
 We will be using matrix operations in this assignment, so convert your data frames to matrices:
 ```{r}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
+i1names <- I1$stid
+d1names <- D1$stid
+I2 <-data.matrix(I1 [,-1])
+D2 <- data.matrix(D1[,-1])
+rownames(I2) <- i1names
+rownames(D2) <- d1names
 
 ```
 
@@ -26,7 +32,9 @@ First, lets look at the interest data. We can generate a user-based similarity m
 #First let's transpose the matrix so that multiplication occurs by students rather than units.
 I2 <- t(I2)
 #Then we can generate the cosine similarity values for each pair of students
-install.packages(lsa) #You will need to install the lsa package to access the cosine command.
+require("lsa")
+
+#You will need to install the lsa package to access the cosine command.
 
 #Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
 
@@ -36,7 +44,7 @@ diag(I.SIM) <- NA #Since each student will be most similar to themselves we want
 
 Now, we can make a quick query to find out which students are most similar to you. 
 ```{r}
-my.uni <- "" #Input your UNI id in here
+my.uni <- "js4633" #Input your UNI id in here
 head(rownames(I.SIM[order(I.SIM[my.uni,], decreasing = TRUE),]), n = 2) #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top two UNI ids for the students who's interests are most similar to yours
 ```
 
@@ -44,12 +52,57 @@ This is a basic collaborative filter! You have used information about interest a
 
 Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
-D.SIM <- 
+D.SIM <- cosine(D2)
+diag(D.SIM) <- NA
+my.unit = "pred.dif"
+head(rownames(D.SIM[order(D.SIM[my.unit,], decreasing = TRUE),]), n = 1)
+
 ```
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 ```{r}
+I3 <- data.matrix(I1[,-1])
+rownames(I3) <- i1names
+pred <- cbind(I3[,1],D2[,1])
+nlp <- cbind(I3[,2],D2[,2])
+sna <- cbind(I3[,3],D2[,3])
+neural <- cbind(I3[,4],D2[,4])
+viz <- cbind(I3[,5],D2[,5])
+loop <- cbind(I3[,6],D2[,6])
 
+pred_pca <- prcomp(pred)
+nlp_pca <- prcomp(nlp)
+sna_pca <- prcomp(sna)
+neural_pca <- prcomp(neural)
+viz_pca <- prcomp(viz)
+loop_pca <- prcomp(loop)
+
+summary(pred_pca)
+summary(nlp_pca)
+summary(sna_pca)
+summary(neural_pca)
+summary(viz_pca)
+summary(loop_pca)
+
+combined_matrix <- cbind(pred_pca[["x"]][,1], 
+                         nlp_pca[["x"]][,1],
+                         sna_pca[["x"]][,1],
+                         neural_pca[["x"]][,1],
+                         viz_pca[["x"]][,1],
+                         loop_pca[["x"]][,1])
+colnames(combined_matrix) <- c("pred","nlp","sna","neural","viz","loop")
+ unit.order <- matrix(nrow=6,ncol=6)
+for (j in 1:dim(combined_matrix)[2]){
+  C.SIM <- cosine(combined_matrix)
+  diag(C.SIM) <- NA
+  last.unit <- colnames(combined_matrix)[j]
+  for (i in 1:dim(C.SIM)[2]) {
+     unit.order[i,j] <- last.unit
+    this.unit <- head(rownames(C.SIM[order(C.SIM[last.unit,], decreasing = TRUE),]), n = 1)
+    C.SIM[,last.unit] <- NA
+    last.unit <- this.unit
+  }
+}
 ```
 
 Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
