@@ -63,34 +63,21 @@ Finally, educational settings have important differences to purely commercial se
 ```{r}
 I3 <- data.matrix(I1[,-1])
 rownames(I3) <- i1names
-pred <- cbind(I3[,1],D2[,1])
-nlp <- cbind(I3[,2],D2[,2])
-sna <- cbind(I3[,3],D2[,3])
-neural <- cbind(I3[,4],D2[,4])
-viz <- cbind(I3[,5],D2[,5])
-loop <- cbind(I3[,6],D2[,6])
+two_column <- rbind(cbind(I3[,1],D2[,1]), cbind(I3[,2],D2[,2]), cbind(I3[,3],D2[,3]), cbind(I3[,4],D2[,4]),cbind(I3[,5],D2[,5]),cbind(I3[,6],D2[,6]))
 
-pred_pca <- prcomp(pred)
-nlp_pca <- prcomp(nlp)
-sna_pca <- prcomp(sna)
-neural_pca <- prcomp(neural)
-viz_pca <- prcomp(viz)
-loop_pca <- prcomp(loop)
+tc_pca <- prcomp(two_column)
 
-summary(pred_pca)
-summary(nlp_pca)
-summary(sna_pca)
-summary(neural_pca)
-summary(viz_pca)
-summary(loop_pca)
+summary(tc_pca)
 
-combined_matrix <- cbind(pred_pca[["x"]][,1], 
-                         nlp_pca[["x"]][,1],
-                         sna_pca[["x"]][,1],
-                         neural_pca[["x"]][,1],
-                         viz_pca[["x"]][,1],
-                         loop_pca[["x"]][,1])
+combined_matrix <- cbind(tc_pca[["x"]][1:22,1], 
+                         tc_pca[["x"]][23:44,1],
+                         tc_pca[["x"]][45:66,1],
+                         tc_pca[["x"]][67:88,1],
+                         tc_pca[["x"]][89:110,1],
+                         tc_pca[["x"]][111:132,1])
 colnames(combined_matrix) <- c("pred","nlp","sna","neural","viz","loop")
+rownames(combined_matrix) <- i1names
+
  unit.order <- matrix(nrow=6,ncol=6)
 for (j in 1:dim(combined_matrix)[2]){
   C.SIM <- cosine(combined_matrix)

@@ -1,0 +1,1 @@
+Find similar students (Neighbors)= weighted average of rankings of items they rated, sort.  IF completed, then move to second completed
