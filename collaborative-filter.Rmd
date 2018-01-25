@@ -17,18 +17,23 @@ D1 <- read.csv("difficulty.csv", header=TRUE)
 We will be using matrix operations in this assignment, so convert your data frames to matrices:
 ```{r}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
-
+#self- Basically change the values of ID to a respective number. Do I have to loop the whole thing like with programming?
+D2<-data.matrix(frame = D1, rownames.force = NA)
+I2<-data.matrix(frame = I1, rownames.force = NA)
 ```
 
 First, lets look at the interest data. We can generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit. This matrix will represent the similarity of interests between students in the class.
 
 ```{r}
 #First let's transpose the matrix so that multiplication occurs by students rather than units.
+#Because if we do it by row normally we will end up just running it as user based. So we transpose- or flip the matrix (like a mirror)
 I2 <- t(I2)
 #Then we can generate the cosine similarity values for each pair of students
 install.packages(lsa) #You will need to install the lsa package to access the cosine command.
 
 #Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
+
+#myanswer- They should be coded as 0, because they are actually a response. NA would imply that a person doesn't answer or doesn't care, but a 0 is a conscious judgment that it should be easy. So 0 has meaning.
 
 I.SIM <- cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
 diag(I.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
