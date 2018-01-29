@@ -78,4 +78,18 @@ diag (C.SIM) <-NA
 comp <- "pred.int"
 head(rownames(C.SIM[order(C.SIM[comp,], decreasing = TRUE),]), n = 1)
 
+#new realization- I am wrong. Kind of. What I've created above is a method of finding a piece which is similar in both interest and in difficulty. While this could work, technically I should be building something which will provide a recommendation for the next unit which is similar, but not the simplest. In hindsight, the best way to do this is by combing my two earlier functions. Find the top two or three most interesting ones, order them by difficulty, and then suggest the most difficult one. So technically it should look like this.
+
+comp2 <- "pred.dif"
+head(rownames(D.SIM2[order(D.SIM2[comp2,], decreasing = TRUE),]), n = 2)
+#this should provide the top two most similar in terms of difficulty. I need to go ahead and include interest in here somehow. 
+head(rownames(D1[order(D1[comp2,], decreasing = TRUE),]), n = 2)
+
+#new realization2- I'm getting tripped up. I am having difficulty because I'm working only with how similar in difficulty two things are, and not objectively trying to find things which are most difficult. I think I need to use D2 measures as a generalization for difficulty. I need to sum the matrix rows and use those as a score. 
+
+rowSums(D2)
+#this gives me all the row sums. I just need to put them into a matrix and allow us to list them in order of difficulty.
+Sumo= rowSums(D2)
+head(rownames(Sumo[order(Sumo[comp2,], decreasing = TRUE),]), n = 2)
+
 Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
