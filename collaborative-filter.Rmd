@@ -69,7 +69,13 @@ head(rownames(D.SIM2[order(D.SIM2[class,], decreasing = TRUE),]), n = 2)
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 ```{r}
-
+#create a composite measure between interest and difficulty and construct a similarity matrix using this measure. Well, we can add the two matrices given that they are the same size? (given equal weighting between the two we give the highest scores)- I hope that won't be an issue for the labelling...This will provide them with a mixture of the most difficult one that they are most interested in...I'm not sure that's the best but its a start.
 ```
+C1 <- I2+D2
+c1t <- t(C1)
+C.SIM <- cosine(c1t)
+diag (C.SIM) <-NA
+comp <- "pred.int"
+head(rownames(C.SIM[order(C.SIM[comp,], decreasing = TRUE),]), n = 1)
 
 Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
