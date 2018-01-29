@@ -10,33 +10,38 @@ In HUDK4051 there are six units, we will use your ratings of these units in term
 
 Start by uploading both the interest and difficulty csv files:
 ```{r}
-I1 <- 
-D1 <- 
+I1 <- read.csv("interest.csv")
+D1 <- read.csv("difficulty.csv")
 ```
 
 We will be using matrix operations in this assignment, so convert your data frames to matrices:
 ```{r}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
-
+I1$stid <- NULL
+row.names(D1) <- D1$stid
+row.names(I1) <- D1$stid
+D1$stid <- NULL
 ```
 
 First, lets look at the interest data. We can generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit. This matrix will represent the similarity of interests between students in the class.
 
 ```{r}
 #First let's transpose the matrix so that multiplication occurs by students rather than units.
-I2 <- t(I2)
+I1 <- t(I1)
 #Then we can generate the cosine similarity values for each pair of students
-install.packages(lsa) #You will need to install the lsa package to access the cosine command.
-
+install.packages("lsa") #You will need to install the lsa package to access the cosine command.
+library(lsa)
 #Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
-
-I.SIM <- cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
+as.matrix(I1)
+I1<-"I2"
+I.SIM <- cosine(I1) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
 diag(I.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
 ```
 
 Now, we can make a quick query to find out which students are most similar to you. 
 ```{r}
-my.uni <- "" #Input your UNI id in here
+my.uni <- "seo2126" 
+#Input your UNI id in here
 head(rownames(I.SIM[order(I.SIM[my.uni,], decreasing = TRUE),]), n = 2) #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top two UNI ids for the students who's interests are most similar to yours
 ```
 
