@@ -33,7 +33,7 @@ First, lets look at the interest data. We can generate a user-based similarity m
 #First let's transpose the matrix so that multiplication occurs by students rather than units.
 MI1 <- t(MI1)
 #Then we can generate the cosine similarity values for each pair of students
-install.packages("lsa") #You will need to install the lsa package to access the cosine command.
+#install.packages("lsa") #You will need to install the lsa package to access the cosine command.
 library(lsa)
 
 #Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
@@ -56,12 +56,44 @@ Now create a unit-based, rather than student-based similarity matrix for difficu
 ```{r}
 D.SIM <- cosine(MD1)
 diag(D.SIM) <- NA
-current.unit <- "sna.dif"
+current.unit <- "loop.dif"
 head(rownames(D.SIM[order(D.SIM[current.unit,], decreasing = TRUE),]), n = 1) 
 ```
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 ```{r}
+
+library(tidyr)
+library(dplyr)
+
+I3 <- gather(I1,unit,interest, 2:7)
+D3 <- gather(D1, stid, difficulty)
+ 
+C1 <- data.frame(I3$stid, I3$unit, I3$interest, D3$difficulty)
+names(C1) <- c("stid", "unit", "interest", "difficulty")
+C1 <- filter(C1, difficulty > 0)
+C2 <- select(C1,"interest", "difficulty")
+PC <- prcomp(C2)
+
+#Extract PC1 loadings as new measure and attach to stid & unit
+C3 <- data.frame(C1$stid,C1$unit,PC$x)
+C4 <- select(C3,"C1.stid","C1.unit","PC1")
+C4$C1.unit<-gsub(".int", "", C4$C1.unit)
+
+ 
+ #Recreate unit by student matrix
+ C5 <- spread(C4, C1.stid, PC1)
+ row.names(C5) <- C5$C1.unit
+ C5$C1.unit <- NULL
+ C5 <- as.matrix(C5)
+ C5 <- ifelse(is.na(C5), 0, C5)
+ C5 <- t(C5)
+ 
+ #Generate cosine similarity matrix for units
+ C.SIM <- cosine(C5)
+ diag(C.SIM) <- NA
+ 
+ head(rownames(C.SIM[order(C.SIM["loop",], decreasing = TRUE),]), n = 1)
 
 ```
 
