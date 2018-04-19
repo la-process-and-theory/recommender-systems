@@ -1,7 +1,7 @@
 ---
 title: "Collaborative Filter"
-author: "Charles Lang"
-date: "1/5/2018"
+author: "Yipu Zheng"
+date: "1/29/2018"
 output: html_document
 ---
 
@@ -10,7 +10,6 @@ In HUDK4051 there are six units, we will use your ratings of these units in term
 
 Start by uploading both the interest and difficulty csv files:
 ```{r}
-I1 <- 
 I1 <- read.csv('interest.csv', header = TRUE)
 D1 <- read.csv('difficulty.csv', header = TRUE)
 ```
@@ -57,7 +56,7 @@ Now create a unit-based, rather than student-based similarity matrix for difficu
 ```{r}
 D.SIM <- cosine(MD1)
 diag(D.SIM) <- NA
-current.unit <- "loop.dif"
+current.unit <- "sna.dif"
 head(rownames(D.SIM[order(D.SIM[current.unit,], decreasing = TRUE),]), n = 1) 
 ```
 
