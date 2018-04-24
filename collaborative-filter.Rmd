@@ -1,7 +1,7 @@
 ---
 title: "Collaborative Filter"
-author: "Charles Lang"
-date: "1/5/2018"
+author: "Charles Lang & Veronica Mai"
+date: "4/24/2018"
 output: html_document
 ---
 
@@ -35,15 +35,19 @@ First, lets look at the interest data. We can generate a user-based similarity m
 I2 <- t(I1)
 #Then we can generate the cosine similarity values for each pair of students
 
-install.packages("lsa") 
+#install.packages("lsa") 
 library(lsa)
+library(SnowballC)
 #You will need to install the lsa package to access the cosine command.
 
 #Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice. 
   
-I.SIM <- cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
+I.SIM <- cosine(I2) 
+#This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
 
-diag(I.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
+diag(I.SIM) <- NA 
+#making diagonise as "NA"
+#Since each student will be most similar to themselves we want to remove that information
 ```
 
 Now, we can make a quick query to find out which students are most similar to you. 
@@ -52,6 +56,8 @@ my.uni <- "xm2208"
 #Input your UNI id in here
 
 head(rownames(I.SIM[order(I.SIM[my.uni,], decreasing = TRUE),]), n = 2) 
+#find our the row with my uni, and arrange it in a decreasing order
+#choose the top 2, and trace back to their owner's uni,then return those two uni
 #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top two UNI ids for the students who's interests are most similar to yours
 ```
 
@@ -59,30 +65,33 @@ This is a basic collaborative filter! You have used information about interest a
 
 Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
+
 D1.SIM <- cosine(D1)
 diag(D1.SIM) <- NA
 my.unit <- "pred.dif" 
 head(rownames(D1.SIM[order(D1.SIM[my.unit,], decreasing = TRUE),]), n = 1) 
+
 ```
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 ```{r}
-install.packages("tidyr")
+#install.packages("tidyr")
 library(tidyr)
 
-install.packages("dplyr")
+#install.packages("dplyr")
 library(dplyr)
 
 Interest <- read.csv("interest.csv")
 Difficulty <- read.csv("difficulty.csv")
 
 I3 <- gather(Interest, unit, interest, 2:7)
-D3 <- gather(Difficulty,stid,difficulty)
+#D3 <- gather(Difficulty,stid,difficulty)
+D3 <- gather(Difficulty,unit,difficulty,2:7)
 
 C1 <- data.frame(I3$interest,D3$difficulty) #create new data frame
 names (C1) <- c ("interest","difficulty") #change headings to interest & difficulty
 
-pc <- prcomp (C1) #Run PCA
+pc <- prcomp (C1) #Run PCA using data from C1
 
 C2 <- data.frame(I3$stid,I3$unit,pc$x)
 C2 <- select (C2,I3.stid,I3.unit,PC1)
