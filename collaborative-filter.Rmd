@@ -9,13 +9,23 @@ In HUDK4051 there are six units, we will use your ratings of these units in term
 
 Start by uploading both the interest and difficulty csv files:
 ```{r}
-
-
+In <- read.csv("interest.csv")
+Df <- read.csv("difficulty.csv")
 ```
 
 We will be using matrix operations in this assignment, so convert your data frames to matrices:
 ```{r, echo = FALSE}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
+library(dplyr)
+In <- In[2:42,]
+Df <- Df[2:42,]
+I2 <- select(In, 2:7)
+D2 <- select(Df, 2:7)
+I2 <- as.matrix(I2)
+D2 <- as.matrix(D2)
+rownames(I2) <- In$name
+rownames(D2) <- Df$name
+
 
 ```
 
@@ -31,30 +41,51 @@ I2 <- t(I2)
 #install.packages("lsa") #You will need to install the lsa package to access the cosine command.
 
 library(lsa)
-
 I.SIM <- cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
 
-diag(I.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
+diag(I.SIM) <- 0 #Since each student will be most similar to themselves we want to remove that information
 ```
 
 Now, we can make a quick query to find out which students are most similar to you. 
 ```{r}
-my.name <- "XXXX" #Input your name as it appears in the data set
-
-head(rownames(I.SIM[order(I.SIM[my.name,], decreasing = TRUE),]), n = 2) #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top two UNI ids for the students who's interests are most similar to yours
+my.name <- "Linan Yue" #Input your name as it appears in the data set
+head(rownames(I.SIM[order(I.SIM["Linan Yue",], decreasing = TRUE),]), n = 2)  #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top two UNI ids for the students who's interests are most similar to yours
 ```
 
 This is a basic collaborative filter! You have used information about interest across the class to generate an individual suggestion. Email one of your top matches, you may find them to be a good person to work with or ask questions during the semester.
 
 Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
-
+D.SIM <- cosine(D2)
+diag(D.SIM) <- NA
+head(rownames(D.SIM[order(D.SIM["pred.dif",], decreasing = TRUE),]), n = 1)
 ```
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 
 ```{r}
+library(tidyr)
+library(lsa)
 
+I3 <- gather(In,unit,interest, 2:7)
+D3 <- gather(Df, name, difficulty)
+N1 <- data.frame(I3$name, I3$unit, I3$interest, D3$difficulty)
+names(N1) <- c("name", "unit", "interest", "difficulty")
+N1 <- filter(N1, difficulty > 0)
+N2 <- select(N1, "interest","difficulty")
+pca <- prcomp(N2)
+N3 <- data.frame(N1$name,N1$unit,pca$x)
+N4 <- select(N3,N1.name,N1.unit,PC1)
+N4$N1.unit <- gsub(".int","",N4$N1.unit)
+N5 <- spread(N4, N1.name, PC1)
+row.names(N5) <- N5$N1.unit
+N5$N1.unit <- NULL
+N5 <- as.matrix(N5)
+N5 <- ifelse(is.na(N5), 0, N5)
+N5 <- t(N5)
+N.SIM <- cosine(N5)
+diag(N.SIM) <- 0
+head(rownames(N.SIM[order(N.SIM["pred",], decreasing = TRUE),]), n = 1)
 
 ```
 
