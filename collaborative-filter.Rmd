@@ -62,7 +62,7 @@ names(C1) <- c("name", "unit", "interest", "difficulty")
 C1 <- filter(C1, difficulty > 0)
 C2 <- select(C1, "interest", "difficulty")
 
-pc <- prcomp(C2)
+pc <- prcomp(C2) #PCA 
 
 C3 <- data.frame(C1$name, C1$unit, pc$x)
 C4 <- select(C3, C1.name, C1.unit, PC1)
