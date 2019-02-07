@@ -10,8 +10,8 @@ In HUDK4051 there are six units, we will use your ratings of these units in term
 Start by uploading both the interest and difficulty csv files:
 ```{r}
 
-
-```
+dt<-read.csv('C:/Users/35276/OneDrive/Documents/recommender-systems/difficulty.csv')
+d1<-read.csv('C:/Users/35276/OneDrive/Documents/recommender-systems/interest.csv')
 
 We will be using matrix operations in this assignment, so convert your data frames to matrices:
 ```{r, echo = FALSE}
