@@ -110,7 +110,7 @@ diag(DI.SIM) <- NA
 ```
 ```{r}
 #Search for most similar unit to "neural"
-head(rownames(DI.SIM[order(DI.SIM["neural",], decreasing = TRUE), ]), n =1)
+head(rownames(DI.SIM[order(DI.SIM["pred",], decreasing = TRUE), ]), n =1)
 ```
 
 Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
