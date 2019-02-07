@@ -26,7 +26,7 @@ difficulty2 <- difficulty[-1]
 row.names(interest2) <- interest$name
 row.names(difficulty2) <- difficulty$name
 #convert to matrix
-mat1 <- data.matrix(interest2)
+I1 <- data.matrix(interest2)
 D2 <- data.matrix(difficulty2)
 
 ```
@@ -39,7 +39,7 @@ First, lets look at the interest data. We can generate a user-based similarity m
 #Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
 #assigning zero to the missing values will make those ratings have a negative effect instead of neutral. If you want to use 0s for the missing value it is better to use centered cosine, because zeros are treated as neutral ratings. 
 
-I2 <- t(mat1)
+I2 <- t(I1)
 
 #Then we can generate the cosine similarity values for each pair of students
 #install.packages("lsa") #You will need to install the lsa package to access the cosine command.
@@ -64,17 +64,34 @@ Now create a unit-based, rather than student-based similarity matrix for difficu
 ```{r}
 
 
-mat2.SIM <- cosine(mat2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
+D2.SIM <- cosine(D2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
 
-diag(mat2.SIM) <- NA #Since each item will be most similar to themselves we want to remove that information
+diag(D2.SIM) <- NA #Since each item will be most similar to themselves we want to remove that information
+
+my.item <- "pred.dif" #Input your item as it appears in the data set
+
+head(rownames(D2.SIM[order(D2.SIM[my.item,], decreasing = TRUE),]), n = 2) #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top two UNI ids for the students who's interests are most similar to yours
 ```
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 
 ```{r}
-my.item <- "pred.dif" #Input your item as it appears in the data set
+#gather units and combine to make one data set and remove na
+library(tidyr)
 
-head(rownames(I.SIM[order(I.SIM[my.item,], decreasing = TRUE),]), n = 2) #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top two UNI ids for the students who's interests are most similar to yours
+i3 <- gather(interest, unit,interest, 2:7)
+d3 <- gather(difficulty,  name, difficulty)
+
+c1 <- data.frame(i3$name, i3$unit, i3$interest, d3$difficulty)
+c1 <- na.omit(c1)
+names(c1) <- c("name", "unit", "interest", "difficulty")
+#remove observations where w/ 0 difficulty and isolate interest and difficulty
+
+c2 <- filter(c1, difficulty >= 1)
+c3 <- select(c2, interest, difficulty)
+
+
+
 
 ```
 
