@@ -90,6 +90,30 @@ names(c1) <- c("name", "unit", "interest", "difficulty")
 c2 <- filter(c1, difficulty >= 1)
 c3 <- select(c2, interest, difficulty)
 
+#pca 
+pc <- prcomp(c3)
+c4 <- data.frame(c2$name, c2$unit, pc$x)
+c5 <- select(c4, c2.name, c2.unit, PC1)
+
+c5$c2.unit <- gsub(".int", "", c5$c2.unit)
+
+c6 <- spread(c5, c2.name, PC1)
+row.names(c6) <- c6$c2.unit
+
+#first column has text, so delete
+c6 <- c6[,-1]
+c6$c1.unit <- NULL
+c7 <- as.matrix(c6)
+c7 <- ifelse(is.na(c7), 0, c7)
+c7 <- t(c7)
+
+
+#cosine similarity matrix
+C.SIM <- cosine(c7)
+diag(C.SIM) <- NA
+
+#Search for similar to loop"
+head(rownames(C.SIM[order(C.SIM["loop",], decreasing = TRUE),]), n = 1)
 
 
 
