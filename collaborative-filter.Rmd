@@ -12,11 +12,20 @@ Start by uploading both the interest and difficulty csv files:
 
 dt<-read.csv('C:/Users/35276/OneDrive/Documents/recommender-systems/difficulty.csv')
 d1<-read.csv('C:/Users/35276/OneDrive/Documents/recommender-systems/interest.csv')
-
+```
 We will be using matrix operations in this assignment, so convert your data frames to matrices:
 ```{r, echo = FALSE}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
-
+library(dplyr)
+I2<-select(d1,2:7)
+I2[is.na(I2)] <- 0
+#0 and NA are the same (except value from 0-5), becasue you can trying to find the similarity. you can even enter 99
+I2<-as.matrix(I2)
+rownames(I2)<-d1$name
+D2<-select(dt,2:7)
+D2[is.na(D2)]<-0
+D2<-as.matrix(D2)
+rownames(D2)<-dt$name
 ```
 
 First, lets look at the interest data. We can generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit. This matrix will represent the similarity of interests between students in the class.
@@ -25,6 +34,7 @@ First, lets look at the interest data. We can generate a user-based similarity m
 
 #Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
 
+#The missing values should be coded with 0 since cos similarity cannot understand "NA"
 I2 <- t(I2)
 
 #Then we can generate the cosine similarity values for each pair of students
@@ -40,22 +50,71 @@ diag(I.SIM) <- NA #Since each student will be most similar to themselves we want
 Now, we can make a quick query to find out which students are most similar to you. 
 ```{r}
 my.name <- "XXXX" #Input your name as it appears in the data set
+my.name<-"Xinyue Tan"
 
-head(rownames(I.SIM[order(I.SIM[my.name,], decreasing = TRUE),]), n = 2) #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top two UNI ids for the students who's interests are most similar to yours
+head(rownames(I.SIM[order(I.SIM["Xinyue Tan",], decreasing = TRUE),]), n = 2)
+#This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top two UNI ids for the students who's interests are most similar to yours
+#If you enter n=-3, it gives you the last three
+#[]refers places in the data frame, need to use ""
+
 ```
 
 This is a basic collaborative filter! You have used information about interest across the class to generate an individual suggestion. Email one of your top matches, you may find them to be a good person to work with or ask questions during the semester.
 
 Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
+D.SIM<-cosine(D2)
+diag(D.SIM)<-NA
+head(rownames(D.SIM[order(D.SIM["pred.dif",], decreasing = TRUE),]), n=1)
 
 ```
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 
 ```{r}
+library(tidyr)
+library(lsa)
+I3<-gather(d1,unit, interest, 2:7)
+#gather是把d1的数据提取出来；unit和interest代表着行和列，你也可以不写，系统会自动生成
+D3<-gather(dt, name,difficulty)
+
+C1 <- cbind.data.frame(I3,D3)[,-4]
+#cbind=column bind,一般combine完都是matrix，你要变成data frame；【行，列】，如果删行就【-4，】；为什么删第四列是因为重复了
+
+names(C1)<-c("name","unit","interest","difficulty")
+
+C1<-filter(C1,difficulty>0)
+#大于0的行选出来
+C2<-select(C1, "interest", "difficulty")
+
+pc <- prcomp(C2)
+#把difficulty和interest结合起来-> create a composite measure from interest and difficulty
+
+C3 <- data.frame(C1$name, C1$unit, pc$x)
+C4<-select(C3, C1.name, C1.unit, PC1)
+C4$C1.unit <- gsub(".int", "", C4$C1.unit)
+#字符替换Remove int from unit label；如果我把C4$C1.unit换成C6那他就会变成一个新的vector；但只有一列数
+C5<-spread(C4, C1.name, PC1)
+#spread和gather是互逆的，长的数据变宽->宽的数据变窄
+row.names(C5) <- C5$C1.unit
+#把12345变成C5$C1.unit
+C5$C1.unit <- NULL
+#Both NA and null represents missing or undefined values; Null is undefined value, NA is not avaliable (missing value)；把那一列C1.unit删掉
+C5 <- as.matrix(C5)
+#变成matrix 因为cos只能接受matrix
+C5 <- ifelse(is.na(C5), 0, C5)
+#ifelse(test, yes, no) 如果是NA 变成0，因为cos只能run 0 不能run NA
+C5 <- t(C5)
+#Given a matrix or data.frame x, t returns the transpose of x. 转置
+C.SIM <- cosine(C5)
+diag(C.SIM) <- NA
+#Generate cosine similarity matrix for units
 
 
+head(rownames(C.SIM[order(C.SIM["pred",], decreasing = TRUE),]), n = 1)
+#head:Returns the first or last parts of a vector, matrix, table, data frame or function.
+#order(C.SIM["pred",], decreasing = TRUE),代表着降序排列(上面的数字最大) [1] 2 5 1 6 3 4
+#rownames 找出代表的unit的名字
 ```
 
 Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
