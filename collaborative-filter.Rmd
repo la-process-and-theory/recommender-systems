@@ -1,6 +1,6 @@
 ---
 title: "collaborative-filter"
-author: "Charles Lang"
+author: "Shuo-Yuan Kao"
 date: "1/31/2019"
 output: html_document
 ---
@@ -54,9 +54,9 @@ This is a basic collaborative filter! You have used information about interest a
 
 Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
-D.SIM<-cosine(D2)
-diag(D.SIM)<-NA
-head(rownames(D.SIM[order(D.SIM["pred.dif",], decreasing = TRUE),]), n = 1)
+D.SIM <- cosine(D2)
+diag(D.SIM) <- NA
+head(rownames(D.SIM[order(D.SIM["pred.dif",], decreasing = TRUE),]), n = 1) 
 
 ```
 
@@ -65,6 +65,7 @@ Finally, educational settings have important differences to purely commercial se
 ```{r}
 library(tidyr)
 library(lsa)
+
 
 I3 <- gather(I1,unit,interest, 2:7)
 D3 <- gather(D1, name, difficulty)
