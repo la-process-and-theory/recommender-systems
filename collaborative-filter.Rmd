@@ -92,11 +92,36 @@ library(tidyr)
 I4 <- gather(interest, unit, I_rating, 2:7)
 D4 <- gather(difficulty, unit ,D_rating, 2:7)
 
-PCA1 <- left_join(I4, D4, by = c("name" = "name", "unit" = "unit"))
+PCA1 <- data.frame(I4$name, I4$unit, I4$I_rating, D4$D_rating)
 names(PCA1) <- c("name", "unit", "int_rating", "dif_rating")
-#want to isolate just interest:difficulty relationship so get rid of instances where that relationship isn't present
 
+#want to isolate just interest:difficulty relationship so get rid of instances where that relationship isn't present
 PCA2 <- PCA1 %>% filter(dif_rating > 0)
+
+#Don't care about names or units, drop them
+PCA3 <- PCA2 %>% select(3:4)
+
+PCA4 <- prcomp(PCA3)
+
+DF1 <- data.frame(PCA2$name, PCA2$unit, PCA4$x)
+DF2 <- select(DF1, PCA2.name, PCA2.unit,PC1)
+
+#remove int from unit label
+DF2$PCA2.unit <- gsub(".int", "", DF2$PCA2.unit)
+
+DF3 <- spread(DF2, PCA2.name, PC1)
+row.names(DF3) <- DF3$PCA2.unit
+DF3$PCA2.unit <- NULL
+
+DF3 <- as.matrix(DF3)
+DF3 <- ifelse(is.na(DF3),0,DF3)
+DF3 <- t(DF3)
+
+#creat cosine similarity matrix for units
+C.SIM <- cosine(DF3)
+diag(C.SIM) <- NA
+
+head(rownames(C.SIM[order(C.SIM["neural",], decreasing = T),]),n = 1)
 
 ```
 
