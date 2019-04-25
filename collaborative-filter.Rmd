@@ -2,6 +2,8 @@
 title: "collaborative-filter"
 author: "Charles Lang"
 date: "1/31/2019"
+author: "LC YUAN"
+date: "4/24/2019"
 output: html_document
 ---
 
@@ -9,14 +11,21 @@ In HUDK4051 there are six units, we will use your ratings of these units in term
 
 Start by uploading both the interest and difficulty csv files:
 ```{r}
-
+library(dplyr) 
+interest<-read.csv('interest.csv')
+diff<-read.csv('difficulty.csv')
 
 ```
 
 We will be using matrix operations in this assignment, so convert your data frames to matrices:
 ```{r, echo = FALSE}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
-
+i <- select(interest, 2:7)
+i <- as.matrix(i)
+rownames(i) <- interest$name
+d <- select(diff, 2:7)
+d <- as.matrix(d)
+rownames(d) <- diff$name
 ```
 
 First, lets look at the interest data. We can generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit. This matrix will represent the similarity of interests between students in the class.
@@ -26,7 +35,6 @@ First, lets look at the interest data. We can generate a user-based similarity m
 #Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
 
 I2 <- t(I2)
-
 #Then we can generate the cosine similarity values for each pair of students
 #install.packages("lsa") #You will need to install the lsa package to access the cosine command.
 
@@ -48,14 +56,36 @@ This is a basic collaborative filter! You have used information about interest a
 
 Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
-
+d.SIM <- cosine(d)
+diag(d.SIM) <- NA
+head(rownames(d.SIM[order(d.SIM["pred.dif",], decreasing = TRUE),]), n = 1) 
 ```
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 
 ```{r}
-
-
+library(tidyr)
+i1 <- gather(interest,unit,interest, 2:7)
+d1 <- gather(diff, name, difficulty)
+c1 <- data.frame(i1$name, i1$unit, i1$interest, d1$difficulty)
+names(c1) <- c("name", "unit", "interest", "difficulty")
+c1 <- filter(c1, difficulty > 0)
+c2 <- select(c1, "interest", "difficulty")
+pc <- prcomp(c2)
+c3 <- data.frame(c1$name, c1$unit, pc$x)
+c4 <- select(c3, c1.name, c1.unit, PC1)
+c4$c1.unit <- gsub(".int", "", c4$c1.unit)
+c5 <- spread(c4, c1.name, PC1)
+row.names(c5) <- c5$c1.unit
+c5$c1.unit <- NULL
+c5 <- as.matrix(c5)
+c5 <- ifelse(is.na(c5), 0, c5)
+c5 <- t(c5)
+#Generating cosine similarity matrix for the units
+c.SIM <- cosine(c5)
+diag(c.SIM) <- NA
+#Searching for the most similar unit to "neural"
+head(rownames(c.SIM[order(c.SIM["neural",], decreasing = TRUE),]), n = 1)
 ```
 
 Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
