@@ -7,7 +7,7 @@
 
 Recommender systems are a response to the growing problem of an excess of data. They are systems to help make decisions in the context of users selecting modules or units by giving users feedback that is based on their learning and their preferences. An "ideal" recommender system provides a small number of suggested metrics or new content based on the learner's past behavior as well as the patterns of all other learners in the sample. Recommender systems may provide behavioral cues, new content, insights or suggested behavioral changes based on a comparison of the learner to all other learners in the system.
 
-For this task, we are going to create a simple recommender system and collaborative filter to help students of a data analytics classes to identify who they should be able to collaborate with for each unit, and which units are most similar. 
+For this task, we are going to create a simple recommender system and collaborative filter to help students of a data analytics classes to identify who they should be able to collaborate with for each unit, and which class units are most similar. 
 
 ![Image rec system](https://github.com/andreamcornejo/recommender-systems/blob/master/pic.png)
 
