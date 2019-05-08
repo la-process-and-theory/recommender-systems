@@ -1,16 +1,24 @@
-# Recommender Systems
+# Simple Recommender System
 
-As the amount of educational data available to us has grown, the task of organizing and making use of it has become more daunting. [Duval (2011)](dl.acm.org/citation.cfm?id=2090118) saw recommender systems as a way to deal with the "paradox of choice", the dilemma of determining what information to feed back to learners about their learning. An idealized recommender system provides a limited number of suggested metrics or new content based on the learner's past behavior and the patterns of all other learners in the sample. Recommender systems may provide behavioral cues, new content, insights or suggested behavioral changes based on a comparison of the learner to all other learners in the system.
+![Image rec system](https://github.com/andreamcornejo/recommender-systems/blob/master/pic3.png)
 
-## Goals for this Unit
 
-* Be able to discuss different uses for recommender systems in learning applications
-* Be able to discuss the theory behind item-based and user-based collaborative filtering methods and the role of cosine similarity 
-* Be able to build a basic recommender system using an item-based collaborative filter and cosine similarity in R
+##Background
 
-## Tasks for this unit
+Recommender systems are a response to the growing problem of an excess of data. They are systems to help make decisions in the context of users selecting modules or units by giving users feedback that is based on their learning and their preferences. An "ideal" recommender system provides a small number of suggested metrics or new content based on the learner's past behavior as well as the patterns of all other learners in the sample. Recommender systems may provide behavioral cues, new content, insights or suggested behavioral changes based on a comparison of the learner to all other learners in the system.
 
-In this unit you will be working towards creating a recommender system for HUDK4051. This recommedner system will suggest which unit you should tackle next. Your recommender will be based on a type of collaboratove filter. As background to this task please read over the follwing materials and watch the methodological videos. If you find any other useful materials please add them under **Additional Materials** at the end of the this page and pull request the change back to this repo.
+For this task, we are going to create a simple recommender system and collaborative filter to help students of a data analytics classes to identify who they should be able to collaborate with for each unit, and which units are most similar. 
+
+![Image rec system](https://github.com/andreamcornejo/recommender-systems/blob/master/pic.png)
+
+## Specific Objective
+
+More specifically, we will use two datasets where students of the class have rated their interest and perceived level of difficulty for each unit in the class (called interest and difficulty, respectively), to create cosine similarity matrices that will suggest people in the class that have similar interests and perceived difficulties for the units. In addition, we will use principal component analysis (PCA) to create a composite index that considers both interest and difficult, so as to reduce the probability that a given student using the recommender would select all the "less difficult" units in the course (and thus learn less). 
+
+## Conclusion
+
+Moving forward, it would be interesting to also try to make the collaborative filter consider a third factor, such as preferred method of in-class work (something that considers the degree to which each student prefers to actively discuss and work in a group as opposed to independently). 
+
 
 ### Readings
 
