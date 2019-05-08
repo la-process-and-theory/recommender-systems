@@ -3,13 +3,13 @@
 ![Image rec system](https://github.com/andreamcornejo/recommender-systems/blob/master/pic3.png)
 
 
-##Background
+## Background
 
-Recommender systems are a response to the growing problem of an excess of data. They are systems to help make decisions in the context of users selecting modules or units by giving users feedback that is based on their learning and their preferences. An "ideal" recommender system provides a small number of suggested metrics or new content based on the learner's past behavior as well as the patterns of all other learners in the sample. Recommender systems may provide behavioral cues, new content, insights or suggested behavioral changes based on a comparison of the learner to all other learners in the system.
+Recommender systems are a response to the growing problem of an excess of data. They are systems to help make decisions in the context of users selecting modules or units by giving users feedback that is based on their learning and their preferences. An "ideal" recommender system provides a small number of suggested metrics or new content based on the learner's past behavior as well as the patterns of all other learners in the sample. Recommender systems may provide behavioral cues, new content, insights or suggested behavioral changes based on a comparison of the learner to all other learners in the system. Collaborative filters are a class of algorithm used to suggest content to a given user (filtering) by leveraging information about many users (collaboration).
 
 For this task, we are going to create a simple recommender system and collaborative filter to help students of a data analytics classes to identify who they should be able to collaborate with for each unit, and which class units are most similar. 
 
-![Image rec system](https://github.com/andreamcornejo/recommender-systems/blob/master/pic.png)
+![Image rec system](https://github.com/andreamcornejo/recommender-systems/blob/master/pic2.png)
 
 ## Specific Objective
 
@@ -33,10 +33,6 @@ Moving forward, it would be interesting to also try to make the collaborative fi
 Brinton, C. & Chiang, M. (2013). Cosine similarity. In *Networks Illustrated: Principals without Calculus*  
 [Part A](https://www.youtube.com/watch?v=C-JauEnlSlM)  
 [Part B](https://www.youtube.com/watch?v=-gz1qdsM0tk)  
-
-### Assignment: Collaborative Filters for Learning
-
-In this assignment you will be building a collaborative filter. Collaborative filters are a class of algorithm used to suggest content to a given user (filtering) by leveraging information about many users (collaboration). There are many flavors of collaborative filter and they are very commonly used in scenarios where there is incomplete information about a user's preferences such as Netflix suggestions or product recommendations on Amazon. The instructions for the assignment are contained in the file collaborative-filter.rmd. Fork this repo, clone it to Rstudio and when you have completed it, commit the changes, push to your version on Github and pull request your answers back to this repo. 
 
 ### Knowledge Check  
 
