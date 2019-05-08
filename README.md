@@ -8,6 +8,12 @@ As the amount of educational data available to us has grown, the task of organiz
     *MS of Learning Analytics student @ Teachers College, Columbia University*
 
 + This project is get help with _Charles Lang_ (Assistant Professor in Learning Analytics) charles.lang@tc.columbia.edu 
+
+## Tools
+* [R](https://www.r-project.org)
+* [RStudio](https://www.rstudio.com)
+
+
 ## Goals for this project
 * Be able to build a basic recommender system using an item-based collaborative filter and cosine similarity in R
 
