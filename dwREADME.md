@@ -1,7 +1,7 @@
 #** Recommender Systems **
 
 ![GitHub Logo](Recommender.png)
-Format: ![Alt Text](url)
+
 
 Recommender systems retrieve and filter data through content and similar profiles.  Usually used within the e-commerce domain (Amazon), they offer users recommendations for unknown, but possibly desirable products.  This technology is also used to suggest videos (YouTube), movies (NetFlix), even friends (Facebook).   The education domain may be the latest to apply recommender systems to support teaching and learning activities through enhanced information retrieval.  
 
