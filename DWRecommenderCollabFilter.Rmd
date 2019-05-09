@@ -1,0 +1,139 @@
+---
+title: "Recommender/Collaborative Filter"
+author: "Delciane Wright"
+date: "May 7, 2019"
+output: html_document
+---
+
+I will use my ratings of these units in terms of both interest and difficulty to produce individual suggestions about what unit to attempt next.
+```{r}
+
+# Packages/Libraries
+
+install.packages("dplyr")
+library(dplyr) 
+install.packages("tidyr")
+library(tidyr) 
+install.packages("lsa")
+library(lsa) 
+```
+
+Start by uploading both the interest and difficulty csv files:
+```{r}
+
+# Data
+
+I1 <- read.csv("interest.csv", header=TRUE)
+D1 <- read.csv("difficulty.csv", header = TRUE)
+
+# many NAs - replace with 0s
+I1[is.na(I1)] <- 0
+D1[is.na(D1)] <- 0
+
+
+```
+
+Convert data frames to matrices:
+```{r}
+# Remove the student ids as matrices can only contain one data type. Rename row names with the student ids.
+
+I2 <- select(I1, 2:7) 
+I2 <- as.matrix(I2) 
+
+D2 <- select (D1, 2:7)
+D2<- as.matrix(D2)
+
+rownames(I2) <- I1$name 
+rownames(D2) <- D1$name
+```
+Looking at the interest data generate a user-based similarity matrix based on cosine similarity using the ratings given each unit. This matrix will represent the similarity of interests between students in the class.
+
+```{r}
+# Transpose the matrix so that multiplication occurs by students rather than units. (from x = units; y = students to x = students; y = units)
+
+I2 <- t(I2)
+
+# Generate the cosine similarity values for each pair of students - the measure of how similar two pieces of text are. 
+
+# Cosine similarity - algorithm that parses a document into a vector (magnitude & direction).  Each entry is number of occurrence of a word, then compare to another document's vector and calculate cosine of two vectors
+
+# Values should be coded with 0s in order to do Cosine Similarity, cannot compute with NAs.
+
+I.SIM <- cosine(I2) #This command generates the cosine similarity values as a new matrix
+
+diag(I.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
+```
+
+Now, make a quick query to find out which students are most similar to me 
+```{r}
+my.name <- "Delciane Wright" 
+head(rownames(I.SIM [order (I.SIM [my.name,], decreasing = TRUE),] ), n = 2) #This code orders the column of the matrix corresponding to me according to similarity and returns the top two UNI ids for the students who's interests are most similar to mine
+```
+
+This is a basic collaborative filter! Using information about interest across the class to generate an individual suggestion. 
+
+Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use similarity matrix to provide a suggested next unit 
+```{r}
+D.SIM <- cosine(D2)
+
+diag(D.SIM) <- NA
+
+head(rownames(D.SIM [order (D.SIM ["pred.dif",], decreasing = TRUE),] ), n = 3)
+ 
+
+# In education we want people not to just follow their interests as they may simply choose things that are easy for them, so they learn very little. To reduce this possibility use collaborative filter to create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (PCA). Once built the similarity matrix generates a suggestion for a student who has just completed the "prediction" unit.
+
+I3 <- gather(I1, unit, interest, 2:7)
+D3 <- gather(D1, name, difficulty)
+
+# Create a dataframe and name variables
+DI1 <- data.frame(I3$name, I3$unit, I3$interest, D3$difficulty)
+names(DI1) <- c("Name", "Unit", "Interest", "Difficulty")
+
+# replace the ".int" with "" space under Unit
+DI1$Unit <- gsub(".int", "", DI1$Unit)
+
+# filter out only rows with a Difficulty more than 0
+DI2<- filter(DI1, Difficulty > 0)
+
+# select specific variables
+DI3 <- select (DI2, "Interest", "Difficulty")
+```
+```{r}
+# Run PCA - converts set of observations of possible correlated variables into set of values of linearly unrelated variables - principle components
+pca <- prcomp(DI3)
+summary(pca)
+```
+
+
+
+
+
+
+```{r}
+# Extract DI2 loadings as new measure and attach a name & unit
+DI4 <- data.frame(DI2$Name, DI2$Unit, pca$x)
+DI5 <- select(DI4, DI2.Name, DI2.Unit, PC1)
+
+# Recreate unit by student matrix - rows into columns
+DI6 <- spread(DI5, DI2.Name, PC1)
+row.names(DI6) <- DI6$DI2.Unit
+DI6$DI2.Unit <- NULL
+
+DI7 <- as.matrix(DI6)
+DI7 <- ifelse(is.na(DI7), 0, DI7)
+DI7 <- t(DI7)
+```
+```{r}
+#Generate cosine similarity matrix for units
+DI.SIM <- cosine(DI7)
+diag(DI.SIM) <- NA
+```
+```{r}
+#Search for most similar unit to "neural"
+head(rownames(DI.SIM[order(DI.SIM["loop",], decreasing = TRUE), ]), n =1)
+```
+
+Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
+
+```
