@@ -1,5 +1,9 @@
 # **Recommender Systems**
 
+<p align="center">
+  <img width="460" height="300" src="Recommender.png/460/300">
+</p>
+
 ![GitHub Logo](Recommender.png)  
 
 
