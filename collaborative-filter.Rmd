@@ -26,6 +26,10 @@ rownames(D2) <- D1$name
 ```
 
 First, lets look at the interest data. We can generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit. This matrix will represent the similarity of interests between students in the class.
+
+Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
+
+#My missing value is coded with 0, because that will be easier to handle in calculation. If I code with NA, cosine function can't deal with missing values in a vector and some data which are not NA will be not included in the calculation. 
 ```{r, echo = FALSE}
 #First let's transpose the matrix so that multiplication occurs by students rather than units.
 
