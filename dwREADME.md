@@ -1,4 +1,4 @@
-# ** Recommender Systems **
+# **Recommender Systems**
 
 ![GitHub Logo](Recommender.png)  
 
