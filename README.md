@@ -44,3 +44,7 @@ This dataset contains students' perceptions of interest on each topic:
 4. Find out who have the most similar interests with you in class.
 5. Create a unit-based similarity matrix for difficulty and provide suggestions on which following unit a student is going to do based on the similarity of difficulty to another unit (e.g: "prediction")
 6. Create a composite measure (such as PCA) from interest and difficulty and then a similarity matrix using this measure, so that we can ensure that students are recommended with units not just based on their interests but also based on what unit(s) they have already completed.
+
+## Author
+
+[Meijuan Zeng](https://github.com/tomato018), MS student in Learning Analytics at Columbia University
