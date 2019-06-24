@@ -38,9 +38,9 @@ This dataset contains students' perceptions of interest on each topic:
 
 ## Procedure
 
- 1. Upload both the interest and difficulty csv files.
- 2. Use matrix operations by converting both two data frames to matricies.
- 3. Generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit.
- 4. Find out who have the most similar interests with you in class.
- 5. Create a unit-based similarity matrix for difficulty and provide suggestions on which following unit a student is going to do based on the similarity of difficulty to another unit (e.g: "prediction")
- 6. Create a composite measure (such as PCA) from interest and difficulty and then a similarity matrix using this measure, so that we can ensure that students are recommended with units not just based on their interests but also based on what unit(s) they have already completed.
+1. Upload both the interest and difficulty csv files.
+2. Use matrix operations by converting both two data frames to matricies.
+3. Generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit.
+4. Find out who have the most similar interests with you in class.
+5. Create a unit-based similarity matrix for difficulty and provide suggestions on which following unit a student is going to do based on the similarity of difficulty to another unit (e.g: "prediction")
+6. Create a composite measure (such as PCA) from interest and difficulty and then a similarity matrix using this measure, so that we can ensure that students are recommended with units not just based on their interests but also based on what unit(s) they have already completed.
