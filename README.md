@@ -6,7 +6,7 @@ In HUDK 4051 there are six units. We will use our ratings of these units in term
 
 ## Packages Requried 
 ```
-install.packages("lsa") #Install the lsa pacakage to access the cosine command.
+install.packages("lsa") 
 install.packages("tidyr") 
 ```
 ## Datasets Info
