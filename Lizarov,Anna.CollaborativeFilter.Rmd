@@ -12,10 +12,9 @@ library(tidyr)
 library(lsa)
 ```
 
-In HUDK4051 there are six units, we will use your ratings of these units in terms of both interest and difficulty to produce individual suggestions about what unit to attempt next.
+In a graduate Learning Analytics course, there are six units. The students' ratings of these units in terms of both interest and difficulty will be used to produce individual suggestions about what unit to attempt next.
 
-Start by uploading both the interest and difficulty csv files:
-
+# Datasets
 ```{r}
 A <- read.csv("interest.csv", header = TRUE)
 B <- read.csv("difficulty.csv", header=TRUE)
@@ -25,7 +24,7 @@ A[is.na(A)] <- 0
 B[is.na(B)] <- 0
 ```
 
-We will be using matrix operations in this assignment, so convert your data frames to matrices:
+# Convert data frames to matrices:
 ```{r, echo = FALSE}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
 A2 <- select(A, 2:7)
@@ -51,16 +50,16 @@ I.SIM <- cosine(A2) #This command generates the cosine similarity values as a ne
 diag(I.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
 ```
 
-Now, we can make a quick query to find out which students are most similar to you. 
+Now, we can make a quick query to find out which classmates are most similar to the student. 
 ```{r}
 my.name <- "Anna Lizarov" #Input your name as it appears in the data set
 
 head(rownames(I.SIM[order(I.SIM[my.name,], decreasing = TRUE),]), n = 2) #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top two UNI ids for the students who's interests are most similar to yours
 ```
 
-This is a basic collaborative filter! You have used information about interest across the class to generate an individual suggestion. Email one of your top matches, you may find them to be a good person to work with or ask questions during the semester.
+This is a basic collaborative filter! One has used information about interest across the class to generate an individual suggestion.
 
-Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
+Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use the similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
 D.SIM <- cosine(B2)
 diag(D.SIM) <- NA
@@ -104,5 +103,3 @@ diag(C.SIM) <- NA
 #Find a most similar unit to "pred" (prediction unit) in terms of interest and difficulty
 head(rownames(C.SIM[order(C.SIM["pred",], decreasing = TRUE),]), n = 1)
 ```
-
-Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
