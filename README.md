@@ -1,41 +1,36 @@
-# Recommender Systems
+# Recommender Systems in Learning Applications
+![image1](image.png)
 
-As the amount of educational data available to us has grown, the task of organizing and making use of it has become more daunting. [Duval (2011)](dl.acm.org/citation.cfm?id=2090118) saw recommender systems as a way to deal with the "paradox of choice", the dilemma of determining what information to feed back to learners about their learning. An idealized recommender system provides a limited number of suggested metrics or new content based on the learner's past behavior and the patterns of all other learners in the sample. Recommender systems may provide behavioral cues, new content, insights or suggested behavioral changes based on a comparison of the learner to all other learners in the system.
+Recommender systems aren't anything new to us as our interaction with it has tremendously grown when we are involved with music/video streaming, online shopping or any webbrowsing-related behaviors. It might also be helpful if we have it applied in educational settings. Leveraging any data associated with a learner's behaviors and the patterns of all the fellow learners, recommender systems may be a good approach to provide him or her new content, insights or suggestions based on a comparison of the learner to his or her fellow learners. 
 
-## Goals for this Unit
+## Introduction to Tasks and Data Sets
+In this project, I've built a basic recommender system in R as a scaffolding strategy to improve my learning experience with HUDK4051 (Intro to ML Methods): This recommender system will suggest which unit I should tackle next and which fellow students share interests with me. 
 
-* Be able to discuss different uses for recommender systems in learning applications
-* Be able to discuss the theory behind item-based and user-based collaborative filtering methods and the role of cosine similarity 
-* Be able to build a basic recommender system using an item-based collaborative filter and cosine similarity in R
+The two data sets that I worked with are *interest.csv* and *difficulty.csv* -- survey data of the perceived interest and difficulty ratings regarding the six units respectively, including:
+* *pred*: prediction
+* *sna*: social network analysis
+* *nlp*: natural language processing
+* *neural*: neural network
+* *viz*: interactive visualization
+* *loop*: loop closing
 
-## Tasks for this unit
+## Methods and Algorithms
+### Collaborative Filters and Cosine Similarity
+![collaborative](collaborative.jpeg)
+* User-based
+Based on similarities of two users; working with the interest data to suggest which fellow students that match with me the most and I may find to be a good person to work with for the course. 
+* Item-based
+Calculating similarities of two items based on users' ratings of the items; providing a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to a certain unit
+![cosine_sim](cosine_sim.png)
+* Cosine similarity
+Cosine similarity was the measurement technique of similarity used when creating the both filters. By calculating the cosine of the angle between two users/items, we get to compare similarities/dissimilarities of each pair. As cosine similarity wasn't a good indicator of magnitude difference, centered cosine similarity was also used in my model where all the ratings were to be normalized by substracting the mean rating of the user. Hence, users' difference in scaling would also be taken into consideration.
 
-In this unit you will be working towards creating a recommender system for HUDK4051. This recommedner system will suggest which unit you should tackle next. Your recommender will be based on a type of collaboratove filter. As background to this task please read over the follwing materials and watch the methodological videos. If you find any other useful materials please add them under **Additional Materials** at the end of the this page and pull request the change back to this repo.
+* Principle component analysis (PCA)
+It's important that we take into consideration both our interests and unit difficulty. PCA was introduced to create a composite measure from interest and difficulty. It a technique of integrating high-dimension data into fewer dimensions yet still captures most variance with the original data.
 
-### Readings
 
-[Drachsler, H., Verbert, K., Santos, O. C., & Manouselis, N. (2015). Panorama of recommender systems to support learning. In *Recommender Systems Handbook* (pp. 421-451). Springer: New York, NY.](https://lirias.kuleuven.be/bitstream/123456789/476545/1/TEL_RecSys.pdf)
+## Author
+* [Qingying Zhou](https://www.linkedin.com/in/qingying-zhou/)
 
-[Schafer, J. B., Frankowski, D., Herlocker, J., & Sen, S. (2007). Collaborative filtering recommender systems. In *The Adaptive Web* (pp. 291-324). Springer: Berlin, Heidelberg.](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.130.4520&rep=rep1&type=pdf)
-
-### Videos
-
-[Leskovec, J., Rajaraman, A. & Ullman, J. (2017). Recommender systems: Collaborative filtering. In *Mining of Massive Data Sets*. Coursera: Stanford, CA](https://www.youtube.com/watch?v=h9gpufJFF-0)
-
-Brinton, C. & Chiang, M. (2013). Cosine similarity. In *Networks Illustrated: Principals without Calculus*  
-[Part A](https://www.youtube.com/watch?v=C-JauEnlSlM)  
-[Part B](https://www.youtube.com/watch?v=-gz1qdsM0tk)  
-
-### Assignment: Collaborative Filters for Learning
-
-In this assignment you will be building a collaborative filter. Collaborative filters are a class of algorithm used to suggest content to a given user (filtering) by leveraging information about many users (collaboration). There are many flavors of collaborative filter and they are very commonly used in scenarios where there is incomplete information about a user's preferences such as Netflix suggestions or product recommendations on Amazon. The instructions for the assignment are contained in the file collaborative-filter.rmd. Fork this repo, clone it to Rstudio and when you have completed it, commit the changes, push to your version on Github and pull request your answers back to this repo. 
-
-### Knowledge Check  
-
-**Once you have completed all tasks in the unit, please complete the [knowledge check](https://tccolumbia.qualtrics.com/jfe/form/SV_1GOk42X1JrBTIFf).**
-
-### Additional Materials
-
-* [Fazeli, S., Drachsler, H. & Sloep, P. (2017). Applying recommender systems for learning analytics: A tutorial. In *The Handbook of Learning Analytics* (pp. 235-240). SOLAR: Vancouver, BC](https://solaresearch.org/hla-17/hla17-chapter20/) 
-
-* [Principal Compononent Analysis - Visually Explained](http://setosa.io/ev/principal-component-analysis/)
+## Acknowledgements
+This is a project of HUDK4051, instructed by Professor Charles Lang at Teachers' College, Columbia Columbia University.
