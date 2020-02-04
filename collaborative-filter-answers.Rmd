@@ -57,6 +57,7 @@ D2 <- distinct(D2,name, .keep_all= TRUE)
 rownames(D2) <- D2$name
 D2$name <- NULL
 D2 <- as.matrix(D2)
+
 D.SIM <- cosine(D2)
 diag(D.SIM) <- NA
 head(rownames(D.SIM[order(D.SIM["pred.dif"], decreasing = TRUE),]), n = 1) 
