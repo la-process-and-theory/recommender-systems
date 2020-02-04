@@ -51,15 +51,31 @@ This is a basic collaborative filter! You have used information about interest a
 
 Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
+D2 <- unite(D1, "name", first,last, sep = " ")#combine names
+D2 <- distinct(D2,name, .keep_all= TRUE)#remove duplicate students
+rownames(D2) <- D2$name
+D2$name <- NULL
+D2 <- as.matrix(D2)
+D2 <- na.omit(D2)
+
 D.SIM <- cosine(D2)
 diag(D.SIM) <- NA
-head(rownames(D.SIM[order(D.SIM["pred.dif",], decreasing = TRUE),]), n = 1) 
+pred.if <- "Plsna.difficulty"
+head(rownames(D.SIM[order(D.SIM[pred.if,], decreasing = TRUE),]), n = 1) 
 ```
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 ```{r}
+### To be continued
 library(tidyr)
 library(lsa)
+
+I1 <- read.csv("interest.csv")
+D1 <- read.csv("difficulty.csv")
+I1 <- unite(I1, "name", first,last, sep = " ")
+D1 <- unite(D1, "name", first,last, sep = " ")
+I1 <- distinct(I1,name, .keep_all= TRUE)
+D1 <- distinct(D1,name, .keep_all= TRUE)
 
 I3 <- gather(I1,unit,interest, 2:7)
 D3 <- gather(D1, name, difficulty)
