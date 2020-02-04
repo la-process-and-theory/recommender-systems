@@ -4,18 +4,48 @@ author: "Charles Lang"
 date: "1/31/2019"
 output: html_document
 ---
+```{r}
+#install.packages("lsa") #You will need to install the lsa package to access the cosine command.
+library(lsa)
+library(tidyverse)
+
+```
+
 
 In HUDK4051 there are six units, we will use your ratings of these units in terms of both interest and difficulty to produce individual suggestions about what unit to attempt next.
 
 Start by uploading both the interest and difficulty csv files:
 ```{r}
+interest <- read.csv('interest.csv')
+difficulty <- read.csv('difficulty.csv')
+```
+
+```{r}
+#Data cleaning
+#Unite
+interest2 <- unite(interest, col = 'name', .data$first, .data$last)
+
+#Use distinct()/unique() to get distinct values - there are name duplicates
+#Finding duplicates
+interest2 %>% group_by(.data$name) %>% summarise(count = n()) %>% filter(`count` > 1)
+
+#Dealing with duplicates - average duplicates
+
 
 
 ```
+```{r}
+
+```
+
 
 We will be using matrix operations in this assignment, so convert your data frames to matrices:
 ```{r, echo = FALSE}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
+
+#rownames() to preserve names
+
+#matrix()
 
 ```
 
@@ -28,11 +58,8 @@ First, lets look at the interest data. We can generate a user-based similarity m
 I2 <- t(I2)
 
 #Then we can generate the cosine similarity values for each pair of students
-#install.packages("lsa") #You will need to install the lsa package to access the cosine command.
 
-library(lsa)
-
-I.SIM <- cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
+I.SIM <- lsa::cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
 
 diag(I.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
 ```
