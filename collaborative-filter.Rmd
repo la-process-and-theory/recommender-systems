@@ -22,6 +22,7 @@ difficulty <- read.csv('difficulty.csv')
 
 ```{r}
 #Data cleaning
+
 #Unite
 interest2 <- unite(interest, col = 'name', .data$first, .data$last)
 
@@ -30,10 +31,15 @@ interest2 <- unite(interest, col = 'name', .data$first, .data$last)
 interest2 %>% group_by(.data$name) %>% summarise(count = n()) %>% filter(`count` > 1)
 
 #Dealing with duplicates - average duplicates
+interest2 <- interest2 %>% group_by(.data$name) %>% summarise_all(.funs = mean, na.rm = TRUE)
 
-
+#rownames
+column_to_rownames(interest2, var = "name")
 
 ```
+
+
+
 ```{r}
 
 ```
