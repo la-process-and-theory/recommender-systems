@@ -21,8 +21,10 @@ We will be using matrix operations in this assignment, so convert your data fram
 library(dplyr)
 library(tidyr)
 
+
 difficulty$name = paste(difficulty$first,difficulty$last, sep = " ")
 interest$name = paste(interest$first,interest$last, sep = " ")
+
 
 difficulty = difficulty%>%
   select(-c(first, last))%>%
@@ -33,8 +35,6 @@ interest = interest%>%
   select(-c(first, last))%>%
   group_by(name)%>%
   summarize_all(.funs = sum)
-
-
 
 I2 <- select(interest, 2:8)
 I2 <- as.matrix(I2)
@@ -50,7 +50,7 @@ First, lets look at the interest data. We can generate a user-based similarity m
 ```{r}
 #First let's transpose the matrix so that multiplication occurs by students rather than units.
 
-I2 <- t(I2)
+I3 <- t(I2)
 
 
 #Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
@@ -67,7 +67,7 @@ I decided to insert NA's. Since it looks like each value contributes to the dire
 
 library(lsa)
 
-I.SIM <- cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
+I.SIM <- cosine(I3) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
 
 diag(I.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
 ```
@@ -84,10 +84,10 @@ This is a basic collaborative filter! You have used information about interest a
 Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
 
-D2 = t(D2)
+D3 = t(D2)
 D.SIM = cosine(D2)
 diag(D.SIM) = NA
-head(rownames(D.SIM[order(D.SIM[my.name,], decreasing = TRUE),]), n = 7)
+head(rownames(D.SIM[order(D.SIM["prediction.difficulty",], decreasing = TRUE),]), n = 1)
 
 
 ```
@@ -96,6 +96,39 @@ Finally, educational settings have important differences to purely commercial se
 
 ```{r}
 
+interest1 = interest%>%
+  gather(unit, interest, 2:8)
+difficulty1 = difficulty %>%
+  gather(name, difficulty)
+
+s1 = data.frame(interest1$name,interest1$unit,interest1$interest,difficulty1$difficulty)
+colnames(s1) = c("name", "unit", "interest","difficulty")
+
+s2 = data.frame(s1$interest,s1$difficulty)
+colnames(s2) = c("interest", "difficulty")
+s2[is.na(s2)] = 0
+
+
+pca = prcomp(s2)
+pc.x = pca$x
+
+s3 = data.frame(s1$name,s1$unit,pc.x[,1])
+colnames(s3) = c("name", "unit", "pc1")
+
+s3$unit = gsub(".interest", "", x = s3$unit)
+
+
+s4 = s3 %>%
+  spread(unit,pc1)
+
+rownames(s4) = s4$name
+s5 = as.matrix(s4[,2:8])
+
+
+
+s.SIM = cosine(s5)
+diag(s.SIM) = NA
+head(rownames(s.SIM[order(s.SIM["loop",], decreasing = TRUE),]), n = 1)
 
 ```
 
