@@ -4,7 +4,7 @@ author: "Charles Lang"
 date: "1/31/2019"
 output: html_document
 ---
-
+ 
 In HUDK4051 there are six units, we will use your ratings of these units in terms of both interest and difficulty to produce individual suggestions about what unit to attempt next.
 
 Start by uploading both the interest and difficulty csv files:
@@ -57,7 +57,6 @@ D2<- distinct(D2,name, .keep_all = TRUE)
 rownames(D2)<- D2$name
 D2$name<-NULL
 D2<-as.matrix(D2)
-D2<-t(D2)
 
 D.SIM <- cosine(D2)
 diag(D.SIM) <- NA
