@@ -66,7 +66,7 @@ D2<- as.matrix(D2)
 D2<- t(D2)
 D.SIM<- cosine(D2)
 diag(D.SIM)<-NA
-head(rownames(D.SIM[order(D.SIM["prediction.difficulty",], decreasing = TRUE),]), n = 1) 
+head(rownames(D.SIM[order(D.SIM["prediction.difficulty", ], decreasing = TRUE),]), n = 1) 
 
 ```
 
@@ -74,8 +74,39 @@ Finally, educational settings have important differences to purely commercial se
 
 ```{r}
 library(tidyr)
+library(dplyr)
 library(lsa)
 
+#df for pca
+D3<- gather(D1, unit, difficulty, 3:9)
+I3<- gather(I1,unit,interest, 3:9)
+
+C1<- data.frame(I3, D3$difficulty)
+C1<- C1[, -c(1,2)]
+names(C1)<- c("name", "unit", "interest", "difficulty")
+C1 <- na.omit(C1)
+C2 <- select(C1, "interest", "difficulty")
+
+#run pca
+pca <- prcomp(C2, scale = TRUE)
+summary(pca)
+
+#use pca attached with names and units
+C3 <- data.frame(C1$name, C1$unit, pca$x)
+C4<- C3[, -4] #only use PC1
+
+#rec system: df
+C5 <- spread(C4, C1.name, PC1)
+row.names(C5) <- C5$C1.unit
+C5$C1.unit <- NULL
+C5 <- as.matrix(C5)
+C5<-ifelse(is.na(C5),0,C5) #cannot have na to do the matrix.
+C5 <- t(C5)
+
+#rec system: similarity matrix
+C.SIM<- cosine(C5)
+diag(C.SIM)<-NA
+head(rownames(C.SIM[order(C.SIM["neural", ], decreasing = TRUE),]), n = 1)
 
 
 
