@@ -33,36 +33,35 @@ interest2 %>% group_by(.data$name) %>% summarise(count = n()) %>% filter(`count`
 #Dealing with duplicates - average duplicates
 interest2 <- interest2 %>% group_by(.data$name) %>% summarise_all(.funs = mean, na.rm = TRUE)
 
-#rownames
-column_to_rownames(interest2, var = "name")
-
 ```
-
-
-
-```{r}
-
-```
-
 
 We will be using matrix operations in this assignment, so convert your data frames to matrices:
 ```{r, echo = FALSE}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
 
 #rownames() to preserve names
+#rownames
+interest2 <- column_to_rownames(interest2, var = "name")
 
-#matrix()
+interest2 <- as.matrix(interest2)
 
 ```
 
 First, lets look at the interest data. We can generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit. This matrix will represent the similarity of interests between students in the class.
-```{r, echo = FALSE}
+
+```{r}
 #First let's transpose the matrix so that multiplication occurs by students rather than units.
+I2 <- t(interest2)
+```
 
-#Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
+Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
 
-I2 <- t(I2)
+Impressively there are no 0 values in the data, but for discussion's sake...
 
+1. An NA value for cosine similarity within a vector prevents the calculation cosine similarity (returns NA). In theory, you cannot calculate the angular distance between two data points in an n-dimensional space (our metric of similarity when using cosine similarity) when you don't know where one (or both of the points are) in the spac,e because of a missing coordinate on one or more dimensions. In practice, it prevents the calculation of a dot product or vector magnitude.
+2. A 0 value for missing data allows calculation of cosine similarity, but it is naturally only an estimate. For dimensions where the location of the data point in space is unknown, we get round the problem by just assuming it is 0. This could potentially seriously throw off the cosine similarity calculation - imagine two coordinates in a 2D space (1, 2) and (1, 3). Imagine that you didn't know the y-value of (1,3), and assumed it was (1,0). The real cosine similarity and estimated cosine similarity changes drastically. However, I assume this is mitigated if there are a lot more dimensions or dimensions with a smaller range, so it might be ok in these circumstances.
+
+```{r, echo = FALSE}
 #Then we can generate the cosine similarity values for each pair of students
 
 I.SIM <- lsa::cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
