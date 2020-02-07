@@ -10,7 +10,7 @@ In HUDK4051 there are six units, we will use your ratings of these units in term
 Start by uploading both the interest and difficulty csv files:
 ```{r}
 I1 <- read.csv("interest.csv")
-D1 <- read.csv("difficulty.csv")
+D1 <- read.csv("difficulty.csv") 
 
 ```
 
@@ -61,17 +61,62 @@ rownames(D2) <- D2$name
 D2$name <- NULL
 D2 <- as.matrix(D2)
 D2 <- na.omit(D2)
-```
 
-Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
-
-```{r}
 D.SIM <- cosine(D2)
 diag(D.SIM) <- NA
 pred.dif <- "nlp.difficulty"
 head(rownames(D.SIM[order(D.SIM[pred.dif,], decreasing = TRUE),]), n = 2) 
 
 # Therefore, the topic of neural and visualization have the most similar difficulty with nature language processing.
+
+```
+
+Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
+
+```{r}
+library(tidyr)
+library(lsa)
+
+I3 <- unite(I1, "name", first,last, sep = " ")
+I4 <- gather(I3,unit,interest, 2:8)
+
+D3 <-  unite(D1, "name", first,last, sep = " ")
+D4 <- gather(D3, unit, difficulty,2:8)
+
+C1 <- data.frame(I4$name, I4$unit, I4$interest, D4$difficulty)
+names(C1) <- c("name", "unit", "interest", "difficulty")
+C1 <- filter(C1, difficulty > 0)
+C1<-unique(C1)
+C2 <- select(C1, "interest", "difficulty")
+
+#Run PCA
+pc <- prcomp(C2)
+#Extract PC1 loadings as new measure and attach to stid & unit
+C3 <- data.frame(C1$name, C1$unit, pc$x)
+C4 <- C3[,1:3]
+
+#Remove int from unit label
+C4$C1.unit <- gsub(".interest", "", C4$C1.unit)
+
+#Recreate unit by student matrix
+# There are several people who filled in the survey several times with different answers, so I decided to leave the last answer they entered
+C4 <-C4[-c(71,19,121,266,15,217),]
+C5 <- spread(C4, C1.unit, PC1)
+# Some of them leave it blank, so these NAs have to be removed.
+C5 <- na.omit(C5)
+row.names(C5) <- C5$C1.name
+C5$C1.name <- NULL
+C5 <- as.matrix(C5)
+C5 <- ifelse(is.na(C5), 0, C5)
+
+#Generate cosine similarity matrix for units
+C.SIM <- cosine(C5)
+diag(C.SIM) <- NA
+
+#Search for most similar unit to "neural"
+head(rownames(C.SIM[order(C.SIM["neural",], decreasing = TRUE),]), n = 1)
+
+ #  Nature Language Processing is the most similar unit to the Neural Network.
 ```
 
 Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
