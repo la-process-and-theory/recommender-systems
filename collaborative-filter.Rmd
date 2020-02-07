@@ -1,10 +1,10 @@
 ---
 title: "collaborative-filter"
-author: "Charles Lang"
-date: "1/31/2019"
+author: "Timothy Lee"
+date: "6 Feb 2019"
 output: html_document
 ---
-```{r}
+```{r message = FALSE}
 #install.packages("lsa") #You will need to install the lsa package to access the cosine command.
 library(lsa)
 library(tidyverse)
@@ -12,9 +12,9 @@ library(tidyverse)
 ```
 
 
-In HUDK4051 there are six units, we will use your ratings of these units in terms of both interest and difficulty to produce individual suggestions about what unit to attempt next.
+*In HUDK4051 there are six units, we will use your ratings of these units in terms of both interest and difficulty to produce individual suggestions about what unit to attempt next.*
 
-Start by uploading both the interest and difficulty csv files:
+*Start by uploading both the interest and difficulty csv files:*
 ```{r}
 interest <- read.csv('interest.csv')
 difficulty <- read.csv('difficulty.csv')
@@ -25,22 +25,37 @@ difficulty <- read.csv('difficulty.csv')
 
 clean_similarity <- function(df) {
   #Unite
-  df2 <- unite(interest, col = 'name', .data$first, .data$last)
+  df <- unite(df, col = 'name', .data$first, .data$last)
   
   #Use distinct()/unique() to get distinct values - there are name duplicates
   #Finding and printing duplicates
-  df2 %>% group_by(.data$name) %>% summarise(count = n()) %>% filter(`count` > 1)
+  df %>% group_by(.data$name) %>% summarise(count = n()) %>% filter(`count` > 1)
   
   #Dealing with duplicates - average duplicates
-  df2 <- df2 %>% group_by(.data$name) %>% summarise_all(.funs = mean, na.rm = TRUE)
-  df2
+  df <- df %>% group_by(.data$name) %>% summarise_all(.funs = mean, na.rm = TRUE)
+  
+  #Dealing with NAs - use the mean (see below)
+  if (anyNA(df)) {
+    means <- map(df, mean, na.rm = TRUE)
+    df <- replace_na(df, means)
+  }
+  
+  df
 }
 
 
 ```
 
-We will be using matrix operations in this assignment, so convert your data frames to matrices:
-```{r, echo = FALSE}
+*Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.*
+
+Impressively there are no missing values in the data for interest (after accounting for duplicates). There are missing values for difficulty, that will become relevant below.
+
+1. An NA value for cosine similarity within a vector prevents the calculation cosine similarity (returns NA). In theory, you cannot calculate the angular distance between two data points in an n-dimensional space (our metric of similarity when using cosine similarity) when you don't know where one (or both of the points are) in the spac,e because of a missing coordinate on one or more dimensions. In practice, it prevents the calculation of a dot product or vector magnitude.
+2. A 0 value for missing data allows calculation of cosine similarity, but it is naturally only an estimate. For dimensions where the location of the data point in space is unknown, we get round the problem by just assuming it is 0. This could potentially seriously throw off the cosine similarity calculation - imagine two coordinates in a 2D space (1, 2) and (1, 3). Imagine that you didn't know the y-value of (1,3), and assumed it was (1,0). The real cosine similarity and estimated cosine similarity changes drastically. However, I assume this is mitigated if there are a lot more dimensions or dimensions with a smaller range, so it might be ok in these circumstances.
+3. I think that using the mean response instead of a 0 value to replace the missing value is a more reasonable method to dealing with missing values (as opposed to giving up and saying it can't be done because of NAs). In this particular situation, 0 is not even in the range of possible responses, and allows for significant deviation between the 'assumed response' (of 0) and the 'true response' (whatever the person would've filled in), particularly if the true response is high. The mean from available data is the best guess for a value that minimises the difference between assumed and true responses, being the 'middle value' of all known responses. This is implemented in the clean_similarity() function above.
+
+*We will be using matrix operations in this assignment, so convert your data frames to matrices:*
+```{r}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
 
 make_similarity_matrix_input <- function(df, transpose = FALSE) {
@@ -54,7 +69,7 @@ make_similarity_matrix_input <- function(df, transpose = FALSE) {
 
 ```
 
-First, lets look at the interest data. We can generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit. This matrix will represent the similarity of interests between students in the class.
+*First, lets look at the interest data. We can generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit. This matrix will represent the similarity of interests between students in the class.*
 
 ```{r}
 #Clean interest df
@@ -64,13 +79,6 @@ interest2 <- clean_similarity(interest)
 #let's transpose the matrix so that multiplication occurs by students rather than units.
 I2 <- make_similarity_matrix_input(interest2, transpose = TRUE)
 ```
-
-Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
-
-Impressively there are no 0 values in the data, but for discussion's sake...
-
-1. An NA value for cosine similarity within a vector prevents the calculation cosine similarity (returns NA). In theory, you cannot calculate the angular distance between two data points in an n-dimensional space (our metric of similarity when using cosine similarity) when you don't know where one (or both of the points are) in the spac,e because of a missing coordinate on one or more dimensions. In practice, it prevents the calculation of a dot product or vector magnitude.
-2. A 0 value for missing data allows calculation of cosine similarity, but it is naturally only an estimate. For dimensions where the location of the data point in space is unknown, we get round the problem by just assuming it is 0. This could potentially seriously throw off the cosine similarity calculation - imagine two coordinates in a 2D space (1, 2) and (1, 3). Imagine that you didn't know the y-value of (1,3), and assumed it was (1,0). The real cosine similarity and estimated cosine similarity changes drastically. However, I assume this is mitigated if there are a lot more dimensions or dimensions with a smaller range, so it might be ok in these circumstances.
 
 ```{r, echo = FALSE}
 #Then we can generate the cosine similarity values for each pair of students
@@ -87,9 +95,9 @@ my.name <- "Timothy_Lee" #Input your name as it appears in the data set
 head(rownames(I.SIM[order(I.SIM[my.name,], decreasing = TRUE),]), n = 5) #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top 5 UNI ids for the students who's interests are most similar to yours
 ```
 
-This is a basic collaborative filter! You have used information about interest across the class to generate an individual suggestion. Email one of your top matches, you may find them to be a good person to work with or ask questions during the semester.
+*This is a basic collaborative filter! You have used information about interest across the class to generate an individual suggestion. Email one of your top matches, you may find them to be a good person to work with or ask questions during the semester.*
 
-Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
+*Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. *
 ```{r}
 #Clean difficulty df
 difficulty2 <- clean_similarity(difficulty)
@@ -106,18 +114,20 @@ D.SIM <- lsa::cosine(D2) #This command generates the cosine similarity values as
 diag(D.SIM) <- NA #Since each unit will be exactly similar to themselves (cosine similarity of 1) we want to remove that information
 ```
 
-Now, we can make a quick query to find out which units are most similar to a given unit. 
 ```{r}
 unit.name <- "prediction.difficulty" #Input chosen unit name as it appears in the data set
 
-head(rownames(D.SIM[order(D.SIM[unit.name, ], decreasing = TRUE),]), n = 5)#This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top 5 UNI ids for the students who's interests are most similar to yours
+head(rownames(D.SIM[order(D.SIM[unit.name, ], decreasing = TRUE),]), n = 5)#This code orders the column of the matrix corresponding to the given unit according to similarity and returns the top 5 most similar ids for the students who's interests are most similar to yours.
 ```
 
-Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
+*Unit most similar in difficulty to prediction - neural networks.*
+
+
+*Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.*
 
 ```{r}
 
 
 ```
 
-Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
+*Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.*
