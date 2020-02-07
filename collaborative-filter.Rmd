@@ -132,7 +132,9 @@ Unit most similar in difficulty to prediction - neural networks.
 *Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.*
 
 ```{r}
-
+#From what I gather from the solution (wouldn't have figured it out otherwise) - run PCA with interest and difficulty on different axes and take PC1 as the composite measure.
+difficulty2
+interest2
 
 ```
 
