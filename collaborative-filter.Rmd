@@ -78,27 +78,36 @@ interest2 <- clean_similarity(interest)
 #Make interest similarity matrix input
 #let's transpose the matrix so that multiplication occurs by students rather than units.
 I2 <- make_similarity_matrix_input(interest2, transpose = TRUE)
-```
 
-```{r, echo = FALSE}
 #Then we can generate the cosine similarity values for each pair of students
 
 I.SIM <- lsa::cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
-
-diag(I.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
 ```
 
-Now, we can make a quick query to find out which students are most similar to you. 
+
+*Now, we can make a quick query to find out which entries are most similar to a given entry.*
+```{r}
+
+get_similarity <- function(entry, sim_matrix) {
+  diag(sim_matrix) <- NA #Since each entry will be most similar to itself (cosine similarity of 1) we want to remove that information  
+  
+  #This code orders the column of the matrix corresponding to the given entry according to similarity and returns the top 5 other entries for most similar to the given entry.
+  head(rownames(sim_matrix[order(sim_matrix[entry,], decreasing = TRUE),]), n = 5)
+
+}
+```
+
+Calling the function...
 ```{r}
 my.name <- "Timothy_Lee" #Input your name as it appears in the data set
-
-head(rownames(I.SIM[order(I.SIM[my.name,], decreasing = TRUE),]), n = 5) #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top 5 UNI ids for the students who's interests are most similar to yours
+get_similarity(my.name, I.SIM)
+ 
 ```
 
 *This is a basic collaborative filter! You have used information about interest across the class to generate an individual suggestion. Email one of your top matches, you may find them to be a good person to work with or ask questions during the semester.*
 
 *Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. *
-```{r}
+```{r warning = FALSE}
 #Clean difficulty df
 difficulty2 <- clean_similarity(difficulty)
 
@@ -107,20 +116,17 @@ difficulty2 <- clean_similarity(difficulty)
 #comparison of units along 'student dimensions').
 D2 <- make_similarity_matrix_input(difficulty2, transpose = FALSE)
 
-#Then we can generate the cosine similarity values for each pair of students
-
+#Then we can generate the cosine similarity values for each pair of units
 D.SIM <- lsa::cosine(D2) #This command generates the cosine similarity values as a new matrix.
 
-diag(D.SIM) <- NA #Since each unit will be exactly similar to themselves (cosine similarity of 1) we want to remove that information
-```
-
-```{r}
 unit.name <- "prediction.difficulty" #Input chosen unit name as it appears in the data set
 
-head(rownames(D.SIM[order(D.SIM[unit.name, ], decreasing = TRUE),]), n = 5)#This code orders the column of the matrix corresponding to the given unit according to similarity and returns the top 5 most similar ids for the students who's interests are most similar to yours.
+get_similarity(unit.name, D.SIM)
+
+
 ```
 
-*Unit most similar in difficulty to prediction - neural networks.*
+Unit most similar in difficulty to prediction - neural networks.
 
 
 *Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.*

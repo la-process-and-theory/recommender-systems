@@ -422,31 +422,39 @@ interest2 &lt;- clean_similarity(interest)
 
 #Make interest similarity matrix input
 #let&#39;s transpose the matrix so that multiplication occurs by students rather than units.
-I2 &lt;- make_similarity_matrix_input(interest2, transpose = TRUE)</code></pre>
-<p>Now, we can make a quick query to find out which students are most similar to you.</p>
-<pre class="r"><code>my.name &lt;- &quot;Timothy_Lee&quot; #Input your name as it appears in the data set
+I2 &lt;- make_similarity_matrix_input(interest2, transpose = TRUE)
 
-head(rownames(I.SIM[order(I.SIM[my.name,], decreasing = TRUE),]), n = 5) #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top 5 UNI ids for the students who&#39;s interests are most similar to yours</code></pre>
+#Then we can generate the cosine similarity values for each pair of students
+
+I.SIM &lt;- lsa::cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.</code></pre>
+<p><em>Now, we can make a quick query to find out which entries are most similar to a given entry.</em></p>
+<pre class="r"><code>get_similarity &lt;- function(entry, sim_matrix) {
+  diag(sim_matrix) &lt;- NA #Since each entry will be most similar to itself (cosine similarity of 1) we want to remove that information  
+  
+  #This code orders the column of the matrix corresponding to the given entry according to similarity and returns the top 5 other entries for most similar to the given entry.
+  head(rownames(sim_matrix[order(sim_matrix[entry,], decreasing = TRUE),]), n = 5)
+
+}</code></pre>
+<p>Calling the function…</p>
+<pre class="r"><code>my.name &lt;- &quot;Timothy_Lee&quot; #Input your name as it appears in the data set
+get_similarity(my.name, I.SIM)</code></pre>
 <pre><code>## [1] &quot;Qiyang_Lin&quot;  &quot;Xinyi_Zhou&quot;  &quot;Di_Mao&quot;      &quot;Zimo_Chen&quot;   &quot;Aman_Fatima&quot;</code></pre>
 <p><em>This is a basic collaborative filter! You have used information about interest across the class to generate an individual suggestion. Email one of your top matches, you may find them to be a good person to work with or ask questions during the semester.</em></p>
 <p><em>Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the “prediction” unit. </em></p>
 <pre class="r"><code>#Clean difficulty df
-difficulty2 &lt;- clean_similarity(difficulty)</code></pre>
-<pre><code>## Warning in mean.default(.x[[i]], ...): argument is not numeric or logical:
-## returning NA</code></pre>
-<pre class="r"><code>#Make interest similarity matrix input
+difficulty2 &lt;- clean_similarity(difficulty)
+
+#Make interest similarity matrix input
 #Don&#39;t transpose the matrix so that multiplication occurs by units rather than by students (column-wise 
 #comparison of units along &#39;student dimensions&#39;).
 D2 &lt;- make_similarity_matrix_input(difficulty2, transpose = FALSE)
 
-#Then we can generate the cosine similarity values for each pair of students
-
+#Then we can generate the cosine similarity values for each pair of units
 D.SIM &lt;- lsa::cosine(D2) #This command generates the cosine similarity values as a new matrix.
 
-diag(D.SIM) &lt;- NA #Since each unit will be exactly similar to themselves (cosine similarity of 1) we want to remove that information</code></pre>
-<pre class="r"><code>unit.name &lt;- &quot;prediction.difficulty&quot; #Input chosen unit name as it appears in the data set
+unit.name &lt;- &quot;prediction.difficulty&quot; #Input chosen unit name as it appears in the data set
 
-head(rownames(D.SIM[order(D.SIM[unit.name, ], decreasing = TRUE),]), n = 5)#This code orders the column of the matrix corresponding to the given unit according to similarity and returns the top 5 most similar ids for the students who&#39;s interests are most similar to yours.</code></pre>
+get_similarity(unit.name, D.SIM)</code></pre>
 <pre><code>## [1] &quot;neural.difficulty&quot; &quot;viz.difficulty&quot;    &quot;Plsna.difficulty&quot; 
 ## [4] &quot;nlp.difficulty&quot;    &quot;loop.difficulty&quot;</code></pre>
 <p><em>Unit most similar in difficulty to prediction - neural networks.</em></p>
