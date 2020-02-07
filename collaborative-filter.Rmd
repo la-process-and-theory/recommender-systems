@@ -10,7 +10,11 @@ In HUDK4051 there are six units, we will use your ratings of these units in term
 Start by uploading both the interest and difficulty csv files:
 ```{r}
 I1 <- read.csv("interest.csv")
+<<<<<<< HEAD
 D1 <- read.csv("difficulty.csv") 
+=======
+D1 <- read.csv("difficulty.csv")
+>>>>>>> a69773191d1507cb1b8664503fdc8d5fc1725d09
 
 ```
 
@@ -61,6 +65,7 @@ rownames(D2) <- D2$name
 D2$name <- NULL
 D2 <- as.matrix(D2)
 D2 <- na.omit(D2)
+<<<<<<< HEAD
 
 D.SIM <- cosine(D2)
 diag(D.SIM) <- NA
@@ -69,11 +74,14 @@ head(rownames(D.SIM[order(D.SIM[pred.dif,], decreasing = TRUE),]), n = 2)
 
 # Therefore, the topic of neural and visualization have the most similar difficulty with nature language processing.
 
+=======
+>>>>>>> a69773191d1507cb1b8664503fdc8d5fc1725d09
 ```
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 
 ```{r}
+<<<<<<< HEAD
 library(tidyr)
 library(lsa)
 
@@ -117,6 +125,14 @@ diag(C.SIM) <- NA
 head(rownames(C.SIM[order(C.SIM["neural",], decreasing = TRUE),]), n = 1)
 
  #  Nature Language Processing is the most similar unit to the Neural Network.
+=======
+D.SIM <- cosine(D2)
+diag(D.SIM) <- NA
+pred.dif <- "nlp.difficulty"
+head(rownames(D.SIM[order(D.SIM[pred.dif,], decreasing = TRUE),]), n = 2) 
+
+# Therefore, the topic of neural and visualization have the most similar difficulty with nature language processing.
+>>>>>>> a69773191d1507cb1b8664503fdc8d5fc1725d09
 ```
 
 Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
