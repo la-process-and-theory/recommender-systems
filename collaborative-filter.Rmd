@@ -9,6 +9,8 @@ output: html_document
 library(lsa)
 library(tidyverse)
 
+#To visualise PCA results
+library(factoextra)
 ```
 
 
@@ -138,15 +140,60 @@ interest_long <- interest2 %>% pivot_longer(cols = 2:8, names_to = "unit", value
                      separate(col = unit, into = c("unit", NA), sep = "\\.")
 
 
-difficulty_long <- difficulty2 %>% rename(sna.difficulty = Plsna.difficulty) %>% 
+difficulty_long <- difficulty2 %>% rename(sna.difficulty = .data$Plsna.difficulty) %>% 
                        pivot_longer(cols = 2:8, names_to = "unit", values_to = "difficulty") %>%
                        separate(col = unit, into = c("unit", NA), sep = "\\.")
 
 interest_diffculty <- full_join(interest_long, difficulty_long, by = c("name", "unit"))
 
-
-
+interest_diffculty2 <- select(interest_diffculty, interest, difficulty)
 
 ```
+
+PCA and visualisations of PCA
+
+```{r}
+pca <- prcomp(interest_diffculty2)
+
+pca$sdev
+fviz_eig(pca)
+fviz_pca_var(pca)
+```
+
+PC1 accounts for 62.6% of the variance in interest and difficulty. Not perfect, but with only two features we work with what we got. Would another way to do this be to run PCA with all the individual ratings as features? Though I realise that this method might lead to us ignoring variance from either interest/difficulty...
+
+Use PC1 as the composite measure of interest and difficulty:
+
+```{r}
+pc1 <- pca$x[, 1]
+
+#Regenerate the input for the similarity matrix
+interest_difficulty3 <- data.frame(name = interest_diffculty$name, unit = interest_diffculty$unit, pc1)
+
+interest_difficulty_sim <- pivot_wider(interest_difficulty3, id_cols = "name", names_from = "unit", values_from = "pc1")
+  
+```
+
+
+What we want is a unit-based, not student-based recommender. Call functions above to do this:
+
+```{r}
+#Clean difficulty df - not necessary, since the interest_difficulty matrix was already built from cleaned DFs without
+#duplicates and NAs
+
+#Make interest similarity matrix input
+#Don't transpose the matrix so that multiplication occurs by units rather than by students (column-wise 
+#comparison of units along 'student dimensions').
+ID2 <- make_similarity_matrix_input(interest_difficulty_sim, transpose = FALSE)
+
+#Then we can generate the cosine similarity values for each pair of units
+ID.SIM <- lsa::cosine(ID2) #This command generates the cosine similarity values as a new matrix.
+
+unit.name <- "prediction" #Input chosen unit name as it appears in the data set
+
+get_similarity(unit.name, ID.SIM)
+```
+
+The suggestion: Social Network Analysis!
 
 *Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.*
