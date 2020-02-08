@@ -58,14 +58,81 @@ This is a basic collaborative filter! You have used information about interest a
 
 Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
+D1
+D2 <- unite(D1, "name", first,last, sep = " ")#combine names
+D2 <- distinct(D2,name, .keep_all= TRUE)#remove duplicate students
+rownames(D2) <- D2$name
+D2$name <- NULL
+D2 <- as.matrix(D2)
+#D2 <- t(D2) #no need to transpose the matrix 
+D.SIM <- cosine(D2) 
+D.SIM
 
+diag(D.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
+
+head(rownames(D.SIM[order(D.SIM["prediction.difficulty",], decreasing = TRUE),]), n = 1) 
 ```
 
-Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
+Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter, create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 
 ```{r}
+library(tidyr)
+library(lsa)
 
+I3 <- unite(I1, "name", first,last, sep = " ")#combine names
+I3 <- distinct(I3,name, .keep_all= TRUE)#remove duplicate students
+I4 <- gather(I3,unit,interest,2:8)
 
+D3 <- unite(D1, "name", first,last, sep = " ")#combine names
+D3 <- distinct(D3,name, .keep_all= TRUE)#remove duplicate 
+D4 <- gather(D3, unit, difficulty, 2:8)
+
+P1 <- data.frame(I4$name, I4$unit, I4$interest, D4$difficulty)
+names(P1) <- c("name", "unit", "interest", "difficulty")
+P1 <- filter(P1, difficulty > 0) #Extract rows that meet logical criteria
+P2 <- select(P1, "interest", "difficulty")
+
+##################################################################
+#Principal Component Analysis
+##################################################################
+pca <- prcomp(P2)
+
+summary(pca)
+names(pca)
+  # sdev = standard deviation (prior to implying pca)
+  # center = mean (prior to implying pca)
+  # rotation = principal component loadings / eigon vectors 
+  # scale = scaling
+  # x =  principal components scores = values of each samples in terms of principal components
+plot(pca, type = "lines") #to see which components we should keep/drop
+
+## Decide which components you would drop and remove them from your data set.
+  # PROPORTION OF VARIANCE:
+    #PC1 explains 62% of the total variance, which means that nearly two-thirds of the information in the dataset (2 variables) can be encapsulated by just that one Principal Component. 
+    #PC2 explains 37% of the variance.
+
+#Extract PC1 loadings as new measure and attach to stid & unit
+P3 <- data.frame(P1$name, P1$unit, pca$x)
+P4 <- select(P3, P1.name, P1.unit, PC1) 
+#Remove interest from unit label
+P4$P1.unit <- gsub(".interest", "", P4$P1.unit)
+
+#Recreate unit by student matrix
+P5 <- spread(P4, P1.name, PC1)
+row.names(P5) <- P5$P1.unit 
+P5$P1.unit <- NULL
+P5 <- as.matrix(P5)
+P5 <- ifelse(is.na(P5), 0, P5) #for NAs replace it with 0
+P5 <- t(P5) # for unit 
+
+#Generate cosine similarity matrix for units
+C.SIM <- cosine(P5)
+diag(C.SIM) <- NA 
+
+#Search for most similar unit to "prediction"
+head(rownames(C.SIM[order(C.SIM["prediction",], decreasing = TRUE),]), n = 1)
+
+#therefore, the suggestion for students has just completed prediction unit is: "sna"
 ```
 
 Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
