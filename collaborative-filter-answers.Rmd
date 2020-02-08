@@ -70,8 +70,13 @@ Finally, educational settings have important differences to purely commercial se
 library(tidyr)
 library(lsa)
 
-I3 <- gather(I1,unit,interest, 2:7)
-D3 <- gather(D1, name, difficulty)
+I1 <- unite(I1, "name", first,last, sep = " ")
+I1 <- distinct(I1,name, .keep_all= TRUE)
+I3 <- gather(I1,unit,interest, 2:8)
+
+D1 <- unite(D1, "name", first,last, sep = " ")
+D1 <- distinct(D1,name, .keep_all= TRUE)
+D3 <- gather(D1, name, difficulty, 2:8)
 
 C1 <- data.frame(I3$name, I3$unit, I3$interest, D3$difficulty)
 names(C1) <- c("name", "unit", "interest", "difficulty")
