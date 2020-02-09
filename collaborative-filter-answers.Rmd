@@ -40,7 +40,7 @@ library(lsa)
 I.SIM <- cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
 diag(I.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
 ```
-
+    
 Now, we can make a quick query to find out which students are most similar to you. 
 ```{r}
 my.name <- "Zhihao Guo" #Input your name as it appears in the data set
