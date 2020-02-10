@@ -4,8 +4,16 @@ author: "Timothy Lee"
 date: "6 Feb 2019"
 output: html_document
 ---
+
+```{r eval = FALSE}
+#You will need to install the lsa package to access the cosine command.
+install.packages("lsa")
+
+```
+
+
 ```{r message = FALSE}
-#install.packages("lsa") #You will need to install the lsa package to access the cosine command.
+
 library(lsa)
 library(tidyverse)
 
@@ -18,8 +26,8 @@ library(factoextra)
 
 *Start by uploading both the interest and difficulty csv files:*
 ```{r}
-interest <- read.csv('interest.csv')
-difficulty <- read.csv('difficulty.csv')
+interest <- read.csv("interest.csv")
+difficulty <- read.csv("difficulty.csv")
 ```
 
 ```{r}
@@ -27,25 +35,19 @@ difficulty <- read.csv('difficulty.csv')
 
 clean_similarity <- function(df) {
   #Unite
-  df <- unite(df, col = 'name', .data$first, .data$last)
-  
+  df <- tidyr::unite(df, col = "name", .data$first, .data$last)
   #Use distinct()/unique() to get distinct values - there are name duplicates
   #Finding and printing duplicates
   df %>% group_by(.data$name) %>% summarise(count = n()) %>% filter(`count` > 1)
-  
   #Dealing with duplicates - average duplicates
   df <- df %>% group_by(.data$name) %>% summarise_all(.funs = mean, na.rm = TRUE)
-  
   #Dealing with NAs - use the mean (see below)
   if (anyNA(df)) {
     means <- map(df, mean, na.rm = TRUE)
     df <- replace_na(df, means)
   }
-  
   df
 }
-
-
 ```
 
 *Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.*
@@ -83,7 +85,9 @@ I2 <- make_similarity_matrix_input(interest2, transpose = TRUE)
 
 #Then we can generate the cosine similarity values for each pair of students
 
-I.SIM <- lsa::cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
+I.SIM <- lsa::cosine(I2) 
+# This command generates the cosine similarity values as a new matrix.
+# Click on I.SIM in the Global Environment pane to see what it looks like.
 ```
 
 
@@ -91,11 +95,12 @@ I.SIM <- lsa::cosine(I2) #This command generates the cosine similarity values as
 ```{r}
 
 get_similarity <- function(entry, sim_matrix) {
-  diag(sim_matrix) <- NA #Since each entry will be most similar to itself (cosine similarity of 1) we want to remove that information  
+  diag(sim_matrix) <- NA 
+  # Since each entry will be most similar to itself (cosine similarity of 1) we want to remove that information  
   
-  #This code orders the column of the matrix corresponding to the given entry according to similarity and returns the top 5 other entries for most similar to the given entry.
-  head(rownames(sim_matrix[order(sim_matrix[entry,], decreasing = TRUE),]), n = 5)
-
+  # This code orders the column of the matrix corresponding to the given entry according to similarity and 
+  # returns the top 5 other entries for most similar to the given entry.
+  head(rownames(sim_matrix[order(sim_matrix[entry, ], decreasing = TRUE), ]), n = 5)
 }
 ```
 

@@ -369,8 +369,9 @@ summary {
 </div>
 
 
-<pre class="r"><code>#install.packages(&quot;lsa&quot;) #You will need to install the lsa package to access the cosine command.
-library(lsa)</code></pre>
+<pre class="r"><code>#You will need to install the lsa package to access the cosine command.
+install.packages(&quot;lsa&quot;)</code></pre>
+<pre class="r"><code>library(lsa)</code></pre>
 <pre><code>## Warning: package &#39;lsa&#39; was built under R version 3.6.2</code></pre>
 <pre class="r"><code>library(tidyverse)
 
@@ -378,27 +379,23 @@ library(lsa)</code></pre>
 library(factoextra)</code></pre>
 <p><em>In HUDK4051 there are six units, we will use your ratings of these units in terms of both interest and difficulty to produce individual suggestions about what unit to attempt next.</em></p>
 <p><em>Start by uploading both the interest and difficulty csv files:</em></p>
-<pre class="r"><code>interest &lt;- read.csv(&#39;interest.csv&#39;)
-difficulty &lt;- read.csv(&#39;difficulty.csv&#39;)</code></pre>
+<pre class="r"><code>interest &lt;- read.csv(&quot;interest.csv&quot;)
+difficulty &lt;- read.csv(&quot;difficulty.csv&quot;)</code></pre>
 <pre class="r"><code>#Data cleaning
 
 clean_similarity &lt;- function(df) {
   #Unite
-  df &lt;- unite(df, col = &#39;name&#39;, .data$first, .data$last)
-  
+  df &lt;- tidyr::unite(df, col = &quot;name&quot;, .data$first, .data$last)
   #Use distinct()/unique() to get distinct values - there are name duplicates
   #Finding and printing duplicates
   df %&gt;% group_by(.data$name) %&gt;% summarise(count = n()) %&gt;% filter(`count` &gt; 1)
-  
   #Dealing with duplicates - average duplicates
   df &lt;- df %&gt;% group_by(.data$name) %&gt;% summarise_all(.funs = mean, na.rm = TRUE)
-  
   #Dealing with NAs - use the mean (see below)
   if (anyNA(df)) {
     means &lt;- map(df, mean, na.rm = TRUE)
     df &lt;- replace_na(df, means)
   }
-  
   df
 }</code></pre>
 <p><em>Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.</em></p>
@@ -429,14 +426,17 @@ I2 &lt;- make_similarity_matrix_input(interest2, transpose = TRUE)
 
 #Then we can generate the cosine similarity values for each pair of students
 
-I.SIM &lt;- lsa::cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.</code></pre>
+I.SIM &lt;- lsa::cosine(I2) 
+# This command generates the cosine similarity values as a new matrix.
+# Click on I.SIM in the Global Environment pane to see what it looks like.</code></pre>
 <p><em>Now, we can make a quick query to find out which entries are most similar to a given entry.</em></p>
 <pre class="r"><code>get_similarity &lt;- function(entry, sim_matrix) {
-  diag(sim_matrix) &lt;- NA #Since each entry will be most similar to itself (cosine similarity of 1) we want to remove that information  
+  diag(sim_matrix) &lt;- NA 
+  # Since each entry will be most similar to itself (cosine similarity of 1) we want to remove that information  
   
-  #This code orders the column of the matrix corresponding to the given entry according to similarity and returns the top 5 other entries for most similar to the given entry.
-  head(rownames(sim_matrix[order(sim_matrix[entry,], decreasing = TRUE),]), n = 5)
-
+  # This code orders the column of the matrix corresponding to the given entry according to similarity and 
+  # returns the top 5 other entries for most similar to the given entry.
+  head(rownames(sim_matrix[order(sim_matrix[entry, ], decreasing = TRUE), ]), n = 5)
 }</code></pre>
 <p>Calling the function…</p>
 <pre class="r"><code>my.name &lt;- &quot;Timothy_Lee&quot; #Input your name as it appears in the data set
