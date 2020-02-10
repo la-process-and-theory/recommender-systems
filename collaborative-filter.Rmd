@@ -9,14 +9,20 @@ In HUDK4051 there are six units, we will use your ratings of these units in term
 
 Start by uploading both the interest and difficulty csv files:
 ```{r}
-
-
+library(readr)
+interest <- read_csv("interest.csv")
+difficulty <- read_csv("difficulty.csv")
 ```
 
 We will be using matrix operations in this assignment, so convert your data frames to matrices:
 ```{r, echo = FALSE}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
-
+difficulty$first <- NULL
+difficulty$last <- NULL 
+interest$first <- NULL
+interest$last <- NULL
+difficultymatrix <- data.matrix(difficulty, rownames.force = NA) 
+interestmatrix <- data.matrix(interest, rownames.force = NA)
 ```
 
 First, lets look at the interest data. We can generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit. This matrix will represent the similarity of interests between students in the class.
