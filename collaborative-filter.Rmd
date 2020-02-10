@@ -105,7 +105,7 @@ C5 <- t(C5)
 C.SIM<- cosine(C5)
 diag(C.SIM)<-NA
 head(rownames(C.SIM[order(C.SIM["neural", ], decreasing = TRUE),]), n = 1)
-
+#after neural unit, should study nlp unit
 ```
 
 Once you have completed your collaborative filter you can return to it each time you are choosing a new unit to complete.
