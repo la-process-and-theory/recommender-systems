@@ -44,7 +44,7 @@ diag(I.SIM) <- NA #Since each student will be most similar to themselves we want
 
 Now, we can make a quick query to find out which students are most similar to you. 
 ```{r}
-my.name <- "Zhongyuan Zhang" #Input your name as it appears in the data set
+my.name <- "Zhihao Guo" #Input your name as it appears in the data set
 head(rownames(I.SIM[order(I.SIM[my.name,], decreasing = TRUE),]), n = 3) 
 head(names(sort(I.SIM[my.name,],decreasing =TRUE)),3)
 
