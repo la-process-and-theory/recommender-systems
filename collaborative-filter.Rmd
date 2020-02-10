@@ -9,37 +9,50 @@ In HUDK4051 there are six units, we will use your ratings of these units in term
 
 Start by uploading both the interest and difficulty csv files:
 ```{r}
-
-
+difficulty<-read.csv("difficulty.csv")
+interest<-read.csv("interest.csv")
 ```
 
 We will be using matrix operations in this assignment, so convert your data frames to matrices:
 ```{r, echo = FALSE}
 #HINT: First you will need to remove the student ids as matrices can only contain one data type. You will then need to rename your row names with the student ids.
+library(tidyverse)
+tomatrix<-function(x) {
+df<- x %>% 
+  unite(name,1:2) 
+df<-df[-which(duplicated(df$name)),]
+row.names(df)<-df$name 
+df<-df[,-1]
+as.matrix(df)
+}
+
+di_matrix<-tomatrix(difficulty)
+in_matrix<-tomatrix(interest)
 
 ```
 
 First, lets look at the interest data. We can generate a user-based similarity matrix based on cosine similarity using the ratings the class gave each unit. This matrix will represent the similarity of interests between students in the class.
 ```{r, echo = FALSE}
 #First let's transpose the matrix so that multiplication occurs by students rather than units.
-
+in_matrix<-t(in_matrix)
 #Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
+#They should be coded as 0s since NAs won't be processed.
 
-I2 <- t(I2)
+
 
 #Then we can generate the cosine similarity values for each pair of students
 #install.packages("lsa") #You will need to install the lsa package to access the cosine command.
 
 library(lsa)
 
-I.SIM <- cosine(I2) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
+I.SIM <- cosine(in_matrix) #This command generates the cosine similarity values as a new matrix. Click on I.SIM in the Global Environment pane to see what it looks like.
 
 diag(I.SIM) <- NA #Since each student will be most similar to themselves we want to remove that information
 ```
 
 Now, we can make a quick query to find out which students are most similar to you. 
 ```{r}
-my.name <- "XXXX" #Input your name as it appears in the data set
+my.name <- "Jiancong_Shen" #Input your name as it appears in the data set
 
 head(rownames(I.SIM[order(I.SIM[my.name,], decreasing = TRUE),]), n = 2) #This code orders the column of the matrix corresponding to your UNI according to similarity and returns the top two UNI ids for the students who's interests are most similar to yours
 ```
@@ -48,12 +61,43 @@ This is a basic collaborative filter! You have used information about interest a
 
 Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
+di_matrix[is.na(di_matrix)]<-0
+I2.SIM<-cosine(di_matrix)
+diag(I2.SIM)<-NA
 
+head(rownames(I2.SIM[order(I2.SIM["prediction.difficulty",], decreasing = TRUE),]), n = 1)
 ```
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
 
 ```{r}
+D1<-distinct(difficulty,first,.keep_all=TRUE)
+I1<-distinct(interest,first,.keep_all = TRUE)
+D3<- gather(D1, unit, difficulty, 2:8)
+I3<- gather(I1,unit,interest, 2:8)
+C1<- data.frame(I3, D3$difficulty)
+names(C1)<- c("name", "unit", "interest", "difficulty")
+C1 <- na.omit(C1)
+C2 <- select(C1, "interest", "difficulty")
+#run pca
+pca <- prcomp(C2, scale = TRUE)
+#use pca attached with names and units
+C3 <- data.frame(C1$name, C1$unit, pca$x)
+C4<-select(C3,C1.name,C1.unit,PC1) #only use PC1
+C4$C1.unit <- gsub(".interest", "", C4$C1.unit) #omit interest 
+C4<-data.frame(C4)
+#rec system: df
+C5 <- spread(C4, C1.name, PC1)
+row.names(C5) <- C5$C1.unit
+C5$C1.unit <- NULL
+C5 <- as.matrix(C5)
+C5<-ifelse(is.na(C5),0,C5) #cannot have na to do the matrix.
+C5 <- t(C5)
+#rec system: similarity matrix
+#C5<-as.matrix(C5)
+C.SIM<- cosine(C5)
+diag(C.SIM)<-NA
+head(rownames(C.SIM[order(C.SIM["neural", ], decreasing = TRUE),]), n = 1)
 
 
 ```
