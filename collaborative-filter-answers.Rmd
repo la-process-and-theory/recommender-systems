@@ -124,7 +124,7 @@ D3 <- gather(D1,name,difficulty)
 #D3[is.na(D3)]<-0
 #D2 <- as.matrix(D2)
 #rownames(D2) <- D2$name
-#D2$name <- NULL
+
 
 C1 <- data.frame(I3$name, I3$unit, I3$interest, D3$difficulty)
 names(C1) <- c("name", "unit", "interest", "difficulty")
