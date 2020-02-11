@@ -4,7 +4,6 @@ author: "Charles Lang"
 date: "1/31/2019"
 output: html_document
 ---
-
 In HUDK4051 there are six units, we will use your ratings of these units in terms of both interest and difficulty to produce individual suggestions about what unit to attempt next.
 
 Start by uploading both the interest and difficulty csv files:
@@ -23,6 +22,7 @@ I2 <- distinct(I2,name, .keep_all= TRUE)#remove duplicate students
 rownames(I2) <- I2$name
 I2$name <- NULL
 I2 <- as.matrix(I2)
+
 
 
 ```
@@ -51,7 +51,12 @@ This is a basic collaborative filter! You have used information about interest a
 
 Now create a unit-based, rather than student-based similarity matrix for difficulty. Then use your similarity matrix to provide a suggested next unit to a student who is looking for the unit that is most similar in terms of difficulty to the "prediction" unit. 
 ```{r}
-D2 <- t(I2)
+
+D2 <- unite(D1, "name", first,last, sep = " ")#combine names
+D2 <- distinct(D2,name, .keep_all= TRUE)#remove duplicate students
+rownames(D2) <- D2$name
+D2$name <- NULL
+D2 <- as.matrix(D2)
 D.SIM <- cosine(D2)
 diag(D.SIM) <- NA
 pred.dif <- "prediction.interest"
