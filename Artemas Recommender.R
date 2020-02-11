@@ -98,6 +98,6 @@ diag(C.SIM) <- NA
 
 #Search for most similar unit to "neural" 
 head(rownames(C.SIM[order(C.SIM["loop",], decreasing = TRUE),]), n = 1)
-##
+## 
   
  
