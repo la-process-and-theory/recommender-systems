@@ -38,7 +38,6 @@ First, lets look at the interest data. We can generate a user-based similarity m
 #Look at your data, missing values are coded with zero not NA. Investigate cosine similarity and decide whether your missing values should be coded with zeros or NAs. Explain your choice.
 
 I2 <- t(I2)
-D2 <- t(D2)
 
 #Then we can generate the cosine similarity values for each pair of students
 #install.packages("lsa") #You will need to install the lsa package to access the cosine command.
@@ -63,7 +62,7 @@ Now create a unit-based, rather than student-based similarity matrix for difficu
 ```{r}
 D.SIM <- cosine(D2)
 diag(D.SIM) <- NA
-head(rownames(D.SIM[order(D.SIM[my.name,], decreasing = TRUE),]), n = 2) 
+head(rownames(D.SIM[order(D.SIM["prediction.difficulty",], decreasing = TRUE),]), n = 1) 
 ```
 
 Finally, educational settings have important differences to purely commercial settings such as film or product suggestions. In education we want people not to just follow their interests as they may simply choose things that are easy for them so they learn very little. To reduce this possibility with your collaborative filter create a composite measure from interest and difficulty, then construct a similarity matrix using this measure. (HINT: PCA). Once you have built the similarity matrix generate a suggestion for a student who has just completed the "prediction" unit.
@@ -72,8 +71,38 @@ Finally, educational settings have important differences to purely commercial se
 library(tidyr)
 library(lsa)
 
-I3 <- gather(I1,unit,interest, 3:9)
-D3 <- gather(D1, name, difficulty, 3:9)
+I2<-unite(I1,"name",first,last, sep = " ")
+I2 <- distinct(I2,name, .keep_all= TRUE)
+D2<-unite(D1,"name",first,last, sep = " ")
+D2 <- distinct(D2,name, .keep_all= TRUE)
+               
+I3 <- gather((I2),unit,interest, 2:8)
+D3 <- gather((D2),name, difficulty, 2:8)
+
+C1 <- data.frame(I3$name, I3$unit, I3$interest, D3$difficulty)
+
+C1 <- na.omit(C1)
+
+names(C1) <- c("name", "unit", "interest", "difficulty")
+
+C2 <- select(C1, "interest", "difficulty")
+
+C2_PCA <- prcomp(C2,center = TRUE, scale = TRUE)
+summary(C2_PCA)
+C2_PCA$rotation
+C2_PCA$x
+C3 <- data.frame(C1$name, C1$uni,C2_PCA$x)
+C3$C1.uni <- gsub(".interest","",C3$C1.uni)
+C4 <- C3[1:3]
+C5 <- spread(C4,C1.name,PC1)
+row.names(C5) <- C5$C1.uni
+C5$C1.unit <- NULL
+C6 <- as.matrix(C5[,-1])
+C6 <- ifelse(is.na(C6), 0, C6)
+C6 <- t(C6)
+C.SIM <- cosine(C6)
+diag(C.SIM) <- NA
+head(rownames(C.SIM[order(C.SIM["prediction",], decreasing = TRUE),]), n = 1)
 
 ```
 
