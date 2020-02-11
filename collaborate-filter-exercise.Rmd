@@ -54,8 +54,9 @@ D2 <- unite(D1, "name", first,last, sep = " ")#combine names
 D2 <- distinct(D2,name, .keep_all= TRUE)#remove duplicate students
 rownames(D2) <- D2$name
 D2$name <- NULL
-D2 <- as.matrix(I2)
-
+D2 <- as.matrix(D2)
+D2 <- t(D2)
+  
 D.SIM <- cosine(D2)
 diag(D.SIM) <- NA
 head(rownames(D.SIM[order(D.SIM["pred.dif",], decreasing = TRUE),]), n = 2) 
