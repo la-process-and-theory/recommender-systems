@@ -4,11 +4,13 @@
 
 As the amount of educational data available to us has grown, the task of organizing and making use of it has become more daunting. [Duval (2011)](dl.acm.org/citation.cfm?id=2090118) saw recommender systems as a way to deal with the "paradox of choice", the dilemma of determining what information to feed back to learners about their learning. An idealized recommender system provides a limited number of suggested metrics or new content based on the learner's past behavior and the patterns of all other learners in the sample. Recommender systems may provide behavioral cues, new content, insights or suggested behavioral changes based on a comparison of the learner to all other learners in the system.
 
-## Goals for this Unit
+## Packages
+`library(tidyr)`
+`library(dplyr)`
+`library(lsa)`
 
-* Be able to discuss different uses for recommender systems in learning applications
-* Be able to discuss the theory behind item-based and user-based collaborative filtering methods and the role of cosine similarity 
-* Be able to build a basic recommender system using an item-based collaborative filter and cosine similarity in R
+## Goals and Procedure
+* Build a basic recommender system using an item-based collaborative filter and cosine similarity in R
 
 ## Tasks for this unit
 
