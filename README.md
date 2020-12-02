@@ -12,6 +12,12 @@ As the amount of educational data available to us has grown, the task of organiz
 ## Goals and Procedure
 * Build a basic recommender system using an item-based collaborative filter and cosine similarity in R
 
+## Terminology Definition
+- User- based collaborative filtering methods: it generats predictions for users based on ratings from similar users. If a user n is similar to a user u, we say that n is a neighbor of u. User-based algorithms generate a prediction for an item i by analyzing ratings for i from users in neighborhood.
+- Item-based collaborative filtering methods: while user-based algorithms generate predictions based on similarities be-tween users, item-based algorithms generate predictions based on similarities between items.
+
+
+
 ## Tasks for this unit
 
 In this unit you will be working towards creating a recommender system for HUDK4051. This recommedner system will suggest which unit you should tackle next. Your recommender will be based on a type of collaboratove filter. As background to this task please read over the follwing materials and watch the methodological videos. If you find any other useful materials please add them under **Additional Materials** at the end of the this page and pull request the change back to this repo.
